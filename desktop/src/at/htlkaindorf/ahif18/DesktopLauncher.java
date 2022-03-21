@@ -8,9 +8,7 @@ import at.htlkaindorf.ahif18.MunoGame;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setTitle("MUNO");
 		config.setForegroundFPS(60);
-		config.setWindowedMode(800, 480);
-		new Lwjgl3Application(new MunoGame(), config);
+		new Lwjgl3Application(new BucketGame(), config);
 	}
 }
