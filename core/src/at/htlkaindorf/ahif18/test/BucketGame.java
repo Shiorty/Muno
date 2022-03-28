@@ -1,4 +1,4 @@
-package at.htlkaindorf.ahif18;
+package at.htlkaindorf.ahif18.test;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;

@@ -1,31 +1,42 @@
 package at.htlkaindorf.ahif18;
 
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-public class MunoGame extends ApplicationAdapter {
-	SpriteBatch batch;
-	Texture img;
+public class MunoGame extends Game {
+
+	public static final int[] SCREEN_SIZE = new int[]{1920, 1080};
+
+	public SpriteBatch batch;
+	public BitmapFont font;
 	
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+
+		Texture texture = new Texture(Gdx.files.internal("fonts/pixel.png"), true); // true enables mipmaps
+		texture.setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear); // linear filtering in nearest mipmap image
+		font = new BitmapFont(Gdx.files.internal("fonts/pixel.fnt"), new TextureRegion(texture), false);
+
+		this.setScreen(new MainMenueScreen(this));
 	}
 
 	@Override
 	public void render () {
-		ScreenUtils.clear(1, 0, 0, 1);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+		super.render();
 	}
 	
 	@Override
 	public void dispose () {
 		batch.dispose();
-		img.dispose();
+		font.dispose();
 	}
 }
