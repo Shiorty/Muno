@@ -8,14 +8,18 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-public class GameScreen implements Screen {
+public class TestScreen implements Screen {
+
+    private static final float CAMERA_SCALE = 1.5f;
 
     private MunoGame game;
 
     private OrthographicCamera camera;
 
-    public GameScreen(MunoGame game){
+    public TestScreen(MunoGame game){
         this.game = game;
+        camera = new OrthographicCamera(1920 * CAMERA_SCALE, 1080 * CAMERA_SCALE);
+        camera.setToOrtho(false);
     }
 
     @Override
@@ -27,6 +31,8 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(new Color());
 
+        camera.update();
+        game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
 
         int x = 0;
@@ -46,15 +52,39 @@ public class GameScreen implements Screen {
         game.batch.draw(Card.BLUE_0.getTexture(), 0, 0);
         game.batch.end();
 
-        if(Gdx.input.isKeyPressed(Input.Keys.ANY_KEY)){
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
             game.setScreen(new MainMenueScreen(game));
             this.dispose();
+        }
+
+        moveCamera();
+    }
+
+    public void moveCamera(){
+        if(Gdx.input.isKeyPressed(Input.Keys.W)){
+            camera.position.y+= 5;
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.A)){
+            camera.position.x-= 5;
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.S)){
+            camera.position.y-= 5;
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.D)){
+            camera.position.x+= 5;
         }
     }
 
     @Override
     public void resize(int width, int height) {
+        camera.position.x = width/2 * CAMERA_SCALE;
+        camera.position.y = height/2 * CAMERA_SCALE;
 
+        camera.viewportHeight = height * CAMERA_SCALE;
+        camera.viewportWidth = width * CAMERA_SCALE;
     }
 
     @Override
