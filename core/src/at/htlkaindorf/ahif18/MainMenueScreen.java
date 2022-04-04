@@ -1,7 +1,9 @@
 package at.htlkaindorf.ahif18;
 
 import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.test.BucketGameScreen;
 import at.htlkaindorf.ahif18.test.TolleCamera;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -58,7 +60,7 @@ public class MainMenueScreen implements Screen {
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
-            game.setScreen(new TestScreen(game));
+            game.setScreen(new GameScreen(game));
             dispose();
         }
     }
