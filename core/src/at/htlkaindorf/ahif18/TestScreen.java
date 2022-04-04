@@ -76,6 +76,13 @@ public class TestScreen implements Screen {
         if(Gdx.input.isKeyPressed(Input.Keys.D)){
             camera.position.x+= 5;
         }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.E)) {
+            camera.rotate(-1, 0, 0, 1);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+            camera.rotate(1, 0, 0, 1);
+        }
     }
 
     @Override
