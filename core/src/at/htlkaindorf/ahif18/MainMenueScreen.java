@@ -1,30 +1,34 @@
 package at.htlkaindorf.ahif18;
 
 import at.htlkaindorf.ahif18.data.Card;
-import at.htlkaindorf.ahif18.test.BucketGameScreen;
-import at.htlkaindorf.ahif18.test.TolleCamera;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 public class MainMenueScreen implements Screen {
 
     final MunoGame game;
 
-    OrthographicCamera camera;
+    private Stage stage;
 
     public MainMenueScreen(MunoGame game)
     {
         this.game = game;
 
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]);
+        Skin skin = new Skin();
+        skin.get(Label.LabelStyle.class).font.getData().markupEnabled = true;skin.get(Label.LabelStyle.class).font.getData().markupEnabled = true;
+        Label title = new Label("Muno", skin);
+
+        stage = new Stage(new ExtendViewport(500, 500));
+        stage.addActor(title);
     }
 
     @Override
@@ -36,28 +40,9 @@ public class MainMenueScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0.2f, 1);
 
-        camera.update();
-        game.batch.setProjectionMatrix(camera.combined);
-
-        game.batch.begin();
-
-        game.font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        game.font.getData().setScale(2);
-        game.font.draw(game.batch, "Muno", 0, MunoGame.SCREEN_SIZE[1] - 100, MunoGame.SCREEN_SIZE[0], Align.center, false);
-        game.font.getData().setScale(1);
-        game.font.draw(game.batch, "Tap anywhere to begin!", 100, 100);
-
-
-        int centerX = MunoGame.SCREEN_SIZE[0] / 2;
-        int centerY = MunoGame.SCREEN_SIZE[1] / 2;
-
-        drawCard(Card.YELLOW_1, centerX - 125 - 150, centerY, 125);
-        drawCard(Card.YELLOW_9, centerX + 125 + 150, centerY, 125);
-        drawCard(Card.GREEN_4, centerX - 150, centerY, 190);
-        drawCard(Card.GREEN_7, centerX + 150, centerY, 190);
-        drawCard(Card.RED_0, centerX, centerY, 250);
-
-        game.batch.end();
+        ScreenUtils.clear(Color.WHITE);
+        stage.act(delta);
+        stage.draw();
 
         if (Gdx.input.isTouched()) {
             game.setScreen(new GameScreen(game));
