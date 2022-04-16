@@ -20,7 +20,7 @@ public class CardActor extends Actor {
      * Determines the amount of randomly generated cards<br>
      * number of cards should always be odd
      */
-    private static final int NUMBER_OF_CARDS = 7;
+    private static final int NUMBER_OF_CARDS = 9;
 
     private Card[] cards;
 
