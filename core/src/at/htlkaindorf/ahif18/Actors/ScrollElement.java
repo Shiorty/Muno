@@ -1,20 +1,26 @@
 package at.htlkaindorf.ahif18.Actors;
 
-import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.MunoGame;
+import at.htlkaindorf.ahif18.data.PlayerInfo;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class ScrollElement extends Actor {
 
-    private Card card;
+    private PlayerInfo player;
 
-    public ScrollElement(Card card){
+    public ScrollElement(PlayerInfo play) {
         setBounds(0, 0, 100, 100);
-        this.card = card;
+        this.player = play;
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        batch.draw(card.getTexture(), getX(), getY(), 100, 100);
+
+        MunoGame.font.getData().setScale(1);
+        MunoGame.font.setColor(Color.BLACK);
+        MunoGame.font.draw(batch, player.getPlayerName(), getX(), getY());
+
     }
 }

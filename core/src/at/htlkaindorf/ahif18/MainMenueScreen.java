@@ -1,15 +1,12 @@
 package at.htlkaindorf.ahif18;
 
 import at.htlkaindorf.ahif18.data.Card;
-import at.htlkaindorf.ahif18.test.BucketGameScreen;
-import at.htlkaindorf.ahif18.test.TolleCamera;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 public class MainMenueScreen implements Screen {
@@ -40,12 +37,13 @@ public class MainMenueScreen implements Screen {
 
         game.batch.begin();
 
+        //todo: you can put that into an init method so that it is only executed once
         game.font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        game.font.setColor(Color.WHITE);
         game.font.getData().setScale(2);
         game.font.draw(game.batch, "Muno", 0, MunoGame.SCREEN_SIZE[1] - 100, MunoGame.SCREEN_SIZE[0], Align.center, false);
         game.font.getData().setScale(1);
         game.font.draw(game.batch, "Tap anywhere to begin!", 100, 100);
-
 
         int centerX = MunoGame.SCREEN_SIZE[0] / 2;
         int centerY = MunoGame.SCREEN_SIZE[1] / 2;

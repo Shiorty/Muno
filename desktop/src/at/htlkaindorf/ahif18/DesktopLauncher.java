@@ -11,6 +11,7 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);
 //		config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+		// config.setWindowPosition(1700, 900);
 		new Lwjgl3Application(new MunoGame(), config);
 	}
 }
