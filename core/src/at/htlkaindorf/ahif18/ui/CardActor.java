@@ -20,7 +20,7 @@ public class CardActor extends Actor {
      * Determines the amount of randomly generated cards<br>
      * number of cards should always be odd
      */
-    private static final int NUMBER_OF_CARDS = 9;
+    private static final int NUMBER_OF_CARDS = 7;
 
     private Card[] cards;
 
@@ -53,7 +53,7 @@ public class CardActor extends Actor {
         double widthOfCenterCard = (this.getHeight() / 1.5);
 
         //calculates the width of the leftmost card
-        double currentWidth = (widthOfCenterCard * Math.pow(CARD_SCALE_FACTOR, (cards.length - 1) / 2));
+        double currentWidth = (widthOfCenterCard * Math.pow(CARD_SCALE_FACTOR, (cards.length - 1) >> 1));
 
         //calculates the distance of the leftmost card in relation to the screen center
         double currentDistance = 0;
