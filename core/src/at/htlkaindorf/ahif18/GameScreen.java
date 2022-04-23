@@ -29,7 +29,7 @@ public class GameScreen implements Screen {
     {
         this.game = game;
 
-        skin = new Skin(Gdx.files.internal("ui/metalui/metal-ui.json"));
+        skin = new Skin(Gdx.files.internal("ui/metal/skin/metal-ui.json"));
 
         stage = new Stage(new StretchViewport(MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]));
         Gdx.input.setInputProcessor(stage);

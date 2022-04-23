@@ -1,8 +1,8 @@
 
 vhs-ui.png
-size: 1024,1024
+size: 1024, 1024
 format: RGBA8888
-filter: Linear,Linear
+filter: Linear, Linear
 repeat: none
 button
   rotate: false
@@ -22,16 +22,9 @@ button-over
   orig: 34, 31
   offset: 0, 0
   index: -1
-checkbox
-  rotate: false
-  xy: 515, 750
-  size: 31, 23
-  orig: 31, 23
-  offset: 0, 0
-  index: -1
 checkbox-on
   rotate: false
-  xy: 578, 811
+  xy: 515, 750
   size: 31, 23
   orig: 31, 23
   offset: 0, 0
@@ -77,7 +70,7 @@ label-pause
   index: -1
 label-play
   rotate: false
-  xy: 578, 836
+  xy: 259, 322
   size: 61, 59
   split: 0, 55, 0, 0
   pad: 0, 60, 0, 0
@@ -86,7 +79,7 @@ label-play
   index: -1
 label-reverse
   rotate: false
-  xy: 259, 322
+  xy: 515, 775
   size: 61, 59
   split: 0, 55, 0, 0
   pad: 0, 60, 0, 0
@@ -95,7 +88,7 @@ label-reverse
   index: -1
 label-stop
   rotate: false
-  xy: 515, 775
+  xy: 578, 836
   size: 61, 59
   split: 0, 57, 0, 0
   pad: 0, 60, 0, 0
@@ -125,5 +118,12 @@ textfield
   split: 0, 0, 0, 4
   pad: 3, 4, 0, 6
   orig: 42, 33
+  offset: 0, 0
+  index: -1
+checkbox
+  rotate: false
+  xy: 578, 811
+  size: 31, 23
+  orig: 31, 23
   offset: 0, 0
   index: -1
