@@ -2,10 +2,11 @@ package at.htlkaindorf.ahif18;
 
 import at.htlkaindorf.ahif18.Actors.ScrollElement;
 import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.data.NetworkBuffer;
+import at.htlkaindorf.ahif18.data.PlayerInfo;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -15,9 +16,14 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 
 public class GameScreen implements Screen {
 
+    //Framework variables
     private MunoGame game;
     private Stage stage;
     private Skin skin;
+
+    //Other Variables
+    //buffers the network
+    private NetworkBuffer nwa;
 
     public GameScreen(MunoGame game)
     {
@@ -31,15 +37,16 @@ public class GameScreen implements Screen {
         Table table = new Table();
 
         ScrollPane scrollPane = new ScrollPane(table, skin);
-        scrollPane.setPosition(600, 0);
+        scrollPane.setPosition(1920 - Card.RED_3.getTexture().getWidth() * 31, 0);
         scrollPane.setHeight(1080f);
+        scrollPane.setWidth(1000f);
         scrollPane.setFadeScrollBars(false);
         stage.addActor(scrollPane);
 
-        for(Card c : Card.values())
-        {
-            ScrollElement element = new ScrollElement(c);
-            table.add(element);
+        nwa = new NetworkBuffer();
+
+        for(PlayerInfo c : nwa.fetchAllPlayers()) {
+            table.add(new ScrollElement(c));
             table.row();
         }
 
@@ -58,13 +65,16 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(Color.WHITE);
         stage.act(delta);
 
+        /*
         Batch b = stage.getBatch();
         b.begin();
         b.draw(Card.RED_3.getTexture(), 20, 20, 100, 100);
         b.end();
+        */
 
         stage.draw();
     }
+
 
     @Override
     public void resize(int width, int height) {
