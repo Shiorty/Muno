@@ -1,6 +1,7 @@
 package at.htlkaindorf.ahif18;
 
 import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.ui.MainMenuScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -53,7 +54,7 @@ public class TestScreen implements Screen {
         game.batch.end();
 
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
-            game.setScreen(new MainMenueScreen(game));
+            game.setScreen(new MainMenuScreen(game));
             this.dispose();
         }
 
@@ -83,12 +84,20 @@ public class TestScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
             camera.rotate(1, 0, 0, 1);
         }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
+            camera.zoom += 0.01;
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+            camera.zoom -= 0.01;
+        }
     }
 
     @Override
     public void resize(int width, int height) {
-        camera.position.x = width/2 * CAMERA_SCALE;
-        camera.position.y = height/2 * CAMERA_SCALE;
+        camera.position.x = width/2f * CAMERA_SCALE;
+        camera.position.y = height/2f * CAMERA_SCALE;
 
         camera.viewportHeight = height * CAMERA_SCALE;
         camera.viewportWidth = width * CAMERA_SCALE;
