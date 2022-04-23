@@ -33,14 +33,13 @@ public class Settings {
         );
     }
 
-    public void setBackgroundColor(String hex){
-        if(!hex.startsWith("#")){
+    public void setBackgroundColor(String hex)
+    {
+        if(!hex.startsWith("#"))
             hex = "#" + hex;
-        }
 
-        if(hex.length() == 7){
+        if(hex.length() == 7)
             hex += "00";
-        }
 
         try
         {

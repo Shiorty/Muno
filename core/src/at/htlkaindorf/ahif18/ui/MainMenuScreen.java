@@ -131,7 +131,8 @@ public class MainMenuScreen implements Screen {
 
     public void controls(float delta)
     {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
+        {
             mainTable.setDebug(!mainTable.getDebug());
         }
     }

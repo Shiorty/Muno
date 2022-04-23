@@ -56,9 +56,8 @@ public class OptionScreen implements Screen {
 
         Label lbBackgroundColor = new Label("Background Color: ", skin);
         TextField tfColorInput = new TextField("", skin);
-        tfColorInput.setText(Settings.getInstance().getValue(Settings.KEY_BACKGROUND_COLOR));
+        tfColorInput.setText("#" + backgroundColor.toString());
         tfColorInput.setMaxLength(9);
-
         tfColorInput.setTextFieldListener((textField, c) -> {
             Settings.getInstance().setBackgroundColor(textField.getText());
             backgroundColor = Settings.getInstance().getBackgroundColor();
@@ -84,7 +83,7 @@ public class OptionScreen implements Screen {
         tableMain.add(title).padTop(50).expandX().align(Align.center);
         tableMain.row();
 
-        //--- Create SubTable ---//
+        //--- Create SettingsTable ---//
         tableSettings = new Table();
         tableSettings.left();
         tableSettings.columnDefaults(0).align(Align.left).width(450);
@@ -95,10 +94,12 @@ public class OptionScreen implements Screen {
         tableSettings.row();
         tableSettings.add(lbCheckboxTest);
         tableSettings.add(cbCheckboxTest);
+        //--- Finish SettingsTable
 
         tableMain.add(tableSettings).align(Align.left).padTop(50).width(MunoGame.SCREEN_SIZE[0]);
         tableMain.row();
         tableMain.add(backButton).padBottom(50).expandY().align(Align.bottom);
+        //--- Finish Main Table
 
         stage.addActor(tableMain);
         Gdx.input.setInputProcessor(stage);
@@ -106,10 +107,12 @@ public class OptionScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
+        {
             tableMain.setDebug(!tableMain.getDebug());
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F2))
+        {
             tableSettings.setDebug(!tableSettings.getDebug());
         }
 
