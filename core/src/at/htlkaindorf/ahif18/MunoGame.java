@@ -26,7 +26,7 @@ public class MunoGame extends Game {
 			font = new BitmapFont(Gdx.files.internal("fonts/pixel.fnt"), new TextureRegion(texture), false);
 		}
 
-		this.setScreen(new MainMenuScreen(this));
+		this.setScreen(new GameScreen(this));
 	}
 
 	@Override
