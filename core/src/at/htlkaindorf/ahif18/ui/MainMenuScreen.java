@@ -2,8 +2,11 @@ package at.htlkaindorf.ahif18.ui;
 
 import at.htlkaindorf.ahif18.GameScreen;
 import at.htlkaindorf.ahif18.MunoGame;
+import at.htlkaindorf.ahif18.data.Settings;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -32,6 +35,10 @@ public class MainMenuScreen implements Screen {
     private TextureAtlas atlas;
     private Skin skin;
 
+    private Table mainTable;
+
+    private Color backgroundColor;
+
     public MainMenuScreen(MunoGame game)
     {
         this.game = game;
@@ -52,9 +59,10 @@ public class MainMenuScreen implements Screen {
     public void show() {
         Gdx.input.setInputProcessor(stage);
 
+        backgroundColor = Settings.getInstance().getBackgroundColor();
+
         //Create title
-        Label title = new Label("MUNO", skin);
-        title.setFontScale(2);
+        Label title = new Label("MUNO", skin.get("title", Label.LabelStyle.class));
         title.setAlignment(Align.center);
 
         //Create buttons
@@ -74,7 +82,8 @@ public class MainMenuScreen implements Screen {
         optionsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
+                game.getScreen().dispose();
+                game.setScreen(new OptionScreen(game));
             }
         });
 
@@ -86,7 +95,7 @@ public class MainMenuScreen implements Screen {
         });
 
         //Create table
-        Table mainTable = new Table();
+        mainTable = new Table();
         mainTable.setFillParent(true);
         mainTable.center();
 
@@ -107,9 +116,10 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        controls(delta);
         viewport.apply();
 
-        ScreenUtils.clear(0, 0, 0.2f, 1);
+        ScreenUtils.clear(backgroundColor);
 
 //        stage.getBatch().begin();
 //        stage.getBatch().draw(Card.BLUE_0.getTexture(), 0, 0, 1600, 900);
@@ -117,6 +127,14 @@ public class MainMenuScreen implements Screen {
 
         stage.act(delta);
         stage.draw();
+    }
+
+    public void controls(float delta)
+    {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
+        {
+            mainTable.setDebug(!mainTable.getDebug());
+        }
     }
 
     @Override
