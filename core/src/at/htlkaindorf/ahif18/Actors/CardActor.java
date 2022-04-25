@@ -20,7 +20,19 @@ public class CardActor extends MainMenuCardsActor {
         super.drawCard(batch, card, xPos, yPos, width);
     }
 
+    public float getWidth() {
+        return width;
+    }
+
     public void setCard(Card c) {
         this.card = c;
+    }
+
+    public void setxPos(float x) {
+        this.xPos = x;
+    }
+
+    public void setyPos(float y) {
+        this.yPos = y;
     }
 }
