@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 
+import java.util.HashMap;
+
 public class Settings {
 
     private static final String PREFERENCES_NAME = "at.htlkaindorf.muno.settings";

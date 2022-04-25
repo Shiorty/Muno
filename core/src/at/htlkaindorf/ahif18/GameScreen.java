@@ -11,6 +11,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -31,9 +32,10 @@ public class GameScreen implements Screen {
     private Skin skin;
     private Viewport viewport;
 
-    //Buttons
+    //Elements
     private TextButton menuButtons[];
     private CardActor lastPlayedCard;
+    private Table scrollTable;
 
     //Other Variables
     //buffers the network
@@ -44,7 +46,7 @@ public class GameScreen implements Screen {
     public GameScreen(MunoGame game)
     {
         this.game = game;
-        skin = new Skin(Gdx.files.internal("ui/metal/skin/metal-ui.json"));
+        skin = new Skin(Gdx.files.internal("ui/vhs-new/vhs_new.json"));
         viewport = new FitViewport(MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]);
         stage = new Stage(viewport);
 
@@ -53,9 +55,9 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         menuButtons = new TextButton[2];
-        menuButtons[0] = new TextButton("Menu", skin);
-        menuButtons[0].setSize(350, 100);
-        menuButtons[0].setPosition(0, 800);//y position is desired position - height
+        menuButtons[0] = new TextButton("Menu", skin.get("border", TextButton.TextButtonStyle.class));
+        menuButtons[0].setSize(175, 50);
+        menuButtons[0].setPosition(20, 825);//y position is desired position - height
         menuButtons[0].addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -63,9 +65,9 @@ public class GameScreen implements Screen {
             }
         });
         stage.addActor(menuButtons[0]);
-        menuButtons[1] = new TextButton("Chat", skin);
-        menuButtons[1].setSize(350, 100);
-        menuButtons[1].setPosition(400, 800);//y position is desired position - height
+        menuButtons[1] = new TextButton("Chat", skin.get("border", TextButton.TextButtonStyle.class));
+        menuButtons[1].setSize(175, 50);
+        menuButtons[1].setPosition(225, 825);//y position is desired position - height
         menuButtons[1].addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -74,12 +76,15 @@ public class GameScreen implements Screen {
         });
         stage.addActor(menuButtons[1]);
 
-        Table table = new Table();
-        ScrollPane scrollPane = new ScrollPane(table, skin);
+        scrollTable = new Table();
+        scrollTable.setDebug(true);
+        scrollTable.columnDefaults(0).padTop(10).padBottom(10).width(600).height(80).expandX();
+        ScrollPane scrollPane = new ScrollPane(scrollTable, skin);
         scrollPane.setPosition(1600 - 650, 0);
         scrollPane.setHeight(900);
         scrollPane.setWidth(650);
         scrollPane.setFadeScrollBars(false);
+
         stage.addActor(scrollPane);
 
         lastPlayedCard = new CardActor(520, 450, 280);
@@ -89,8 +94,8 @@ public class GameScreen implements Screen {
         nwb = new NetworkBuffer();
 
         for(PlayerInfo c : nwb.fetchAllPlayers()) {
-            table.add(new PlayerScrollElement(c));
-            table.row();
+            scrollTable.add(new PlayerScrollElement(c));
+            scrollTable.row();
         }
 
         scrollPane.validate();
@@ -128,6 +133,10 @@ public class GameScreen implements Screen {
     {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             returnToMenu();
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
+            scrollTable.setDebug(!scrollTable.getDebug());
+        }
 
         return null;
     }
