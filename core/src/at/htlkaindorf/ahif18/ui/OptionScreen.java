@@ -71,8 +71,7 @@ public class OptionScreen implements Screen {
         backButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getScreen().dispose();
-                game.setScreen(new MainMenuScreen(game));
+                returnToMenu();
             }
         });
 
@@ -105,6 +104,10 @@ public class OptionScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
     }
 
+    public void returnToMenu(){
+        game.changeScreen(new MainMenuScreen(game));
+    }
+
     @Override
     public void render(float delta) {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
@@ -114,6 +117,10 @@ public class OptionScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2))
         {
             tableSettings.setDebug(!tableSettings.getDebug());
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE))
+        {
+            returnToMenu();
         }
 
         ScreenUtils.clear(backgroundColor);

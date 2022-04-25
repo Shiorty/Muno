@@ -9,8 +9,11 @@ import java.util.Random;
 /**
  * Displays multiple cards<br>
  * The number of cards should never be even!
+ *
+ * Last changed: 2022.04.24
+ * @author Andreas Kurz
  */
-public class CardActor extends Actor {
+public class MainMenuCardsActor extends Actor {
 
     /**
      * Factor which determines the size of the cards
@@ -28,7 +31,7 @@ public class CardActor extends Actor {
      * Initialises the card array with random Cards<br>
      * The amount of cards is equal to the NUMBER_OF_CARDS constant
      */
-    public CardActor()
+    public MainMenuCardsActor()
     {
         //set default width
         super.setBounds(0, 0, 500, 500);
