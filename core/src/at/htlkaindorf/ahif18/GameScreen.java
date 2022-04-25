@@ -1,6 +1,7 @@
 package at.htlkaindorf.ahif18;
 
 import at.htlkaindorf.ahif18.Actors.CardActor;
+import at.htlkaindorf.ahif18.Actors.CardCollectionActor;
 import at.htlkaindorf.ahif18.Actors.PlayerScrollElement;
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.NetworkBuffer;
@@ -20,7 +21,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class GameScreen implements Screen {
@@ -34,6 +34,7 @@ public class GameScreen implements Screen {
     //Buttons
     private TextButton menuButtons[];
     private CardActor lastPlayedCard;
+    private CardCollectionActor cardsInHand;
 
     //Other Variables
     //buffers the network
@@ -85,6 +86,13 @@ public class GameScreen implements Screen {
         lastPlayedCard = new CardActor(520, 450, 280);
         lastPlayedCard.setCard(Card.RED_1);
         stage.addActor(lastPlayedCard);
+
+        cardsInHand = new CardCollectionActor();
+        cardsInHand.addCard(Card.GREEN_4);
+        cardsInHand.addCard(Card.BLUE_8);
+        cardsInHand.addCard(Card.GREEN_7);
+        cardsInHand.addCard(Card.RED_0);
+        stage.addActor(cardsInHand);
 
         nwb = new NetworkBuffer();
 

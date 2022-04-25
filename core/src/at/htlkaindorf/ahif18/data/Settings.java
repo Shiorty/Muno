@@ -29,7 +29,7 @@ public class Settings {
     public Color getBackgroundColor()
     {
         return Color.valueOf(
-            settings.getString(KEY_BACKGROUND_COLOR, "#00003300")
+            settings.getString(KEY_BACKGROUND_COLOR, "#8fcdc900")
         );
     }
 
