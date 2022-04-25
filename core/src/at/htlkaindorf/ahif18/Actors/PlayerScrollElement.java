@@ -30,7 +30,7 @@ public class PlayerScrollElement extends Actor {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
-        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.setColor(Color.valueOf("E8FFFF"));
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
@@ -38,8 +38,6 @@ public class PlayerScrollElement extends Actor {
         Gdx.gl.glDisable(GL20.GL_BLEND);
 
         batch.begin();
-
-        System.err.println(getWidth());
 
         font.getData().setScale(0.5f);
         font.setColor(Color.BLACK);
