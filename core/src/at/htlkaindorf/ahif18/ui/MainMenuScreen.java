@@ -43,8 +43,8 @@ public class MainMenuScreen implements Screen {
     {
         this.game = game;
 
-        atlas = new TextureAtlas("ui/vhs/skin/vhs-ui.atlas");
-        skin = new Skin(Gdx.files.internal("ui/vhs/skin/vhs-ui.json"), atlas);
+        atlas = new TextureAtlas("ui/vhs-new/vhs_new.atlas");
+        skin = new Skin(Gdx.files.internal("ui/vhs-new/vhs_new.json"), atlas);
 
         batch = new SpriteBatch();
         camera = new OrthographicCamera();
@@ -134,6 +134,10 @@ public class MainMenuScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
         {
             mainTable.setDebug(!mainTable.getDebug());
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+        {
+            Gdx.app.exit();
         }
     }
 
