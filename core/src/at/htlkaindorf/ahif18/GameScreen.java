@@ -5,7 +5,10 @@ import at.htlkaindorf.ahif18.Actors.PlayerScrollElement;
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.NetworkBuffer;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
+import at.htlkaindorf.ahif18.data.Settings;
+import at.htlkaindorf.ahif18.ui.MainMenuScreen;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -16,7 +19,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class GameScreen implements Screen {
 
@@ -24,6 +29,8 @@ public class GameScreen implements Screen {
     private MunoGame game;
     private Stage stage;
     private Skin skin;
+    private Viewport viewport;
+
     //Buttons
     private TextButton menuButtons[];
     private CardActor lastPlayedCard;
@@ -32,11 +39,16 @@ public class GameScreen implements Screen {
     //buffers the network
     private NetworkBuffer nwb;
 
+    private Color backgroundColor;
+
     public GameScreen(MunoGame game)
     {
         this.game = game;
         skin = new Skin(Gdx.files.internal("ui/metal/skin/metal-ui.json"));
-        stage = new Stage(new StretchViewport(MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]));
+        viewport = new FitViewport(MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]);
+        stage = new Stage(viewport);
+
+        backgroundColor = Settings.getInstance().getBackgroundColor();
 
         Gdx.input.setInputProcessor(stage);
 
@@ -47,7 +59,7 @@ public class GameScreen implements Screen {
         menuButtons[0].addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
+                returnToMenu();
             }
         });
         stage.addActor(menuButtons[0]);
@@ -86,6 +98,10 @@ public class GameScreen implements Screen {
         scrollPane.updateVisualScroll();
     }
 
+    public void returnToMenu(){
+        game.changeScreen(new MainMenuScreen(game));
+    }
+
     @Override
     public void show() {
 
@@ -93,7 +109,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.WHITE);
+        controls(delta);
+
+        ScreenUtils.clear(backgroundColor);
         stage.act(delta);
 
         /*
@@ -104,6 +122,14 @@ public class GameScreen implements Screen {
         */
 
         stage.draw();
+    }
+
+    public Double controls(float delta)
+    {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+            returnToMenu();
+
+        return null;
     }
 
 

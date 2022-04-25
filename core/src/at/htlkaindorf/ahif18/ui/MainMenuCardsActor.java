@@ -9,6 +9,9 @@ import java.util.Random;
 /**
  * Displays multiple cards<br>
  * The number of cards should never be even!
+ *
+ * Last changed: 2022.04.24
+ * @author Andreas Kurz
  */
 public class MainMenuCardsActor extends Actor {
 

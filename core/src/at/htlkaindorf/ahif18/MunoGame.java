@@ -3,6 +3,7 @@ package at.htlkaindorf.ahif18;
 import at.htlkaindorf.ahif18.ui.MainMenuScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -26,7 +27,12 @@ public class MunoGame extends Game {
 			font = new BitmapFont(Gdx.files.internal("fonts/pixel.fnt"), new TextureRegion(texture), false);
 		}
 
-		this.setScreen(new GameScreen(this));
+		this.setScreen(new MainMenuScreen(this));
+	}
+
+	public void changeScreen(Screen screen){
+		this.getScreen().dispose();
+		this.setScreen(screen);
 	}
 
 	@Override
