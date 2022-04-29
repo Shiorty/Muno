@@ -12,7 +12,7 @@ public class CardCollectionActor extends Actor {
     private final float CARD_WIDTH = 100;
     private final float CARD_PADDING_LEFT = 100;
     private final float CARD_PADDING_BOTTOM = 90;
-    private List<CardActor> cards;
+    private List<UnoCard> cards;
 
     public CardCollectionActor() {
         cards = new ArrayList<>();
@@ -20,7 +20,7 @@ public class CardCollectionActor extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        for(CardActor ca : cards) {
+        for(UnoCard ca : cards) {
             ca.draw(batch, parentAlpha);
         }
     }
@@ -36,13 +36,14 @@ public class CardCollectionActor extends Actor {
             left_padding += cards.get(i).getWidth();
         }
 
-        CardActor ca = new CardActor(
+        UnoCard unoCard = new UnoCard(c);
+        unoCard.setBounds(
             left_padding + CARD_PADDING_LEFT,
             CARD_PADDING_BOTTOM,
-            CARD_WIDTH
+            CARD_WIDTH,
+            -1
         );
 
-        ca.setCard(c);
-        cards.add(ca);
+        cards.add(unoCard);
     }
 }

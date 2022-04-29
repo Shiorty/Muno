@@ -1,18 +1,16 @@
 package at.htlkaindorf.ahif18;
 
-import at.htlkaindorf.ahif18.Actors.CardActor;
 import at.htlkaindorf.ahif18.Actors.CardCollectionActor;
 import at.htlkaindorf.ahif18.Actors.PlayerScrollElement;
+import at.htlkaindorf.ahif18.Actors.UnoCard;
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.NetworkBuffer;
-import at.htlkaindorf.ahif18.data.PlayerInfo;
-import at.htlkaindorf.ahif18.data.Settings;
+import at.htlkaindorf.ahif18.bl.Settings;
 import at.htlkaindorf.ahif18.ui.MainMenuScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -23,6 +21,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class GameScreen implements Screen {
 
@@ -35,9 +36,10 @@ public class GameScreen implements Screen {
     private Color backgroundColor;
   
     //Elements
-    private TextButton menuButtons[];
-    private CardActor lastPlayedCard;
+    private TextButton[] menuButtons;
+    private UnoCard lastPlayedCard;
     private CardCollectionActor cardsInHand;
+    private List<PlayerScrollElement> scrollElements;
 
     //Other Variables
     //buffers the network
@@ -87,8 +89,11 @@ public class GameScreen implements Screen {
 
         stage.addActor(scrollPane);
 
-        lastPlayedCard = new CardActor(520, 450, 280);
-        lastPlayedCard.setCard(Card.RED_1);
+        //Make the scrollpane scrollable without having to click on it first
+        stage.setScrollFocus(scrollPane);
+
+        lastPlayedCard = new UnoCard(Card.RED_1);
+        lastPlayedCard.setBounds(520, 450, 280, 200);
         stage.addActor(lastPlayedCard);
 
         cardsInHand = new CardCollectionActor();
@@ -100,13 +105,18 @@ public class GameScreen implements Screen {
 
         nwb = new NetworkBuffer();
 
-        for(PlayerInfo c : nwb.fetchAllPlayers()) {
-            scrollTable.add(new PlayerScrollElement(c));
+        scrollElements = nwb.fetchAllPlayers()
+                            .stream()
+                            .map(PlayerScrollElement::new)
+                            .collect(Collectors.toList());
+
+        scrollElements.forEach(element -> {
+            scrollTable.add(element);
             scrollTable.row();
-        }
+        });
 
         scrollPane.validate();
-        scrollPane.setScrollPercentY(20f / Card.values().length);
+//        scrollPane.setScrollPercentY(20f / Card.values().length);
         scrollPane.updateVisualScroll();
     }
 
@@ -145,6 +155,15 @@ public class GameScreen implements Screen {
             scrollTable.setDebug(!scrollTable.getDebug());
         }
 
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
+            //get current debug state of the first element
+            boolean isDebugModeEnabled = scrollElements.size() > 0 && scrollElements.get(0).getDebug();
+
+            scrollElements.forEach(playerScrollElement ->
+                playerScrollElement.setDebug(!isDebugModeEnabled)
+            );
+        }
+
         return null;
     }
 
@@ -172,5 +191,6 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+        skin.dispose();
     }
 }

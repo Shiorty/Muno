@@ -2,7 +2,7 @@ package at.htlkaindorf.ahif18.ui;
 
 import at.htlkaindorf.ahif18.GameScreen;
 import at.htlkaindorf.ahif18.MunoGame;
-import at.htlkaindorf.ahif18.data.Settings;
+import at.htlkaindorf.ahif18.bl.Settings;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;

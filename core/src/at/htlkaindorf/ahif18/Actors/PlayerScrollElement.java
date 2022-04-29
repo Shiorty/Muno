@@ -1,52 +1,95 @@
 package at.htlkaindorf.ahif18.Actors;
 
+import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
+import at.htlkaindorf.ahif18.bl.FontLoader;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
-import static at.htlkaindorf.ahif18.MunoGame.font;
+import java.util.Collections;
 
-public class PlayerScrollElement extends Actor {
+
+public class PlayerScrollElement extends Group {
+
+    private static final Label.LabelStyle LABEL_STYLE = new Label.LabelStyle(FontLoader.generateFont(FontLoader.Font.PIXEL, 48), Color.BLACK);
 
     private PlayerInfo player;
     private ShapeRenderer shapeRenderer;
+
+    private Table table;
+    private Label lbPlayerName;
+    private Label lbCardAmount;
 
     public PlayerScrollElement(PlayerInfo play) {
 //        setBounds(0, 0, 100, 100);
         this.player = play;
         this.shapeRenderer = new ShapeRenderer();
+
+        lbPlayerName = new Label("", LABEL_STYLE);
+        lbCardAmount = new Label("", LABEL_STYLE);
+
+        table = new Table();
+        table.setFillParent(true);
+        table.add(lbPlayerName).left().padLeft(15);
+        table.add(new UnoCard(Card.CARD_BACK)).width(25).expandX().right();
+        table.add(lbCardAmount).padRight(15);
+        table.setDebug(false);
+
+        this.addActor(table);
+    }
+
+    @Override
+    public void setDebug(boolean enabled) {
+        super.setDebug(enabled);
+        table.setDebug(enabled);
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
 
+        //Draw Background Shape
         batch.end();
-
         Gdx.gl.glEnable(GL20.GL_BLEND);
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
         shapeRenderer.setColor(Color.valueOf("E8FFFF"));
-
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
         shapeRenderer.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
-
         batch.begin();
 
-        font.getData().setScale(0.5f);
-        font.setColor(Color.BLACK);
-        drawText(batch, font, player.getPlayerName(), getX() + 10, getY(), getHeight());
-        drawText(batch, font, player.getCardAmount() + "", getX() + getWidth() - 50, getY(), getHeight());
+        //set label values
+        lbPlayerName.setText(player.getPlayerName());
+        lbCardAmount.setText(formatPlayerCardAmount(player.getCardAmount()));
+
+        //Draws Table
+        super.draw(batch, parentAlpha);
     }
 
-    public static void drawText(Batch batch, BitmapFont font, String text, float x, float y, float height){
-        float centerY = y + height/2 + font.getXHeight()/2;
-        font.draw(batch, text, x, centerY);
+    public String formatPlayerCardAmount(int cardAmount)
+    {
+        String result = cardAmount + "";
+
+        result = repeatString("0", 2 - result.length()) + result;
+        result = " X " + result;
+
+        return result;
+    }
+
+    public String repeatString(String string, int count)
+    {
+        if(count <= 0){
+            return "";
+        }
+
+        return String.join("", Collections.nCopies(count, string));
     }
 }
