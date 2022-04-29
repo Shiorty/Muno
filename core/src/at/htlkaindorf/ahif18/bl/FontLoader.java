@@ -63,10 +63,10 @@ public class FontLoader {
             return bitmapFont;
         }
 
-        FileHandle[] availableFonts = Gdx.files.internal("assets/" + font.path).list((dir, name) -> name.matches("-?\\d+.fnt"));
+        FileHandle[] availableFonts = Gdx.files.internal(font.path).list((dir, name) -> name.matches("-?\\d+.fnt"));
 
         List<Integer> fontSizes = Arrays.stream(availableFonts)
-                                    .map(FileHandle::name)
+                                    .map(FileHandle::nameWithoutExtension)
                                     .map(Integer::parseInt)
                                     .collect(Collectors.toList());
 
