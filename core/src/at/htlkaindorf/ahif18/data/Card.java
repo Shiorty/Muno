@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 
 public enum Card {
 
+    CARD_BACK("cards/card_back.png"),
+
     RED_0("cards/red_0.png"),
     RED_1("cards/red_1.png"),
     RED_2("cards/red_2.png"),

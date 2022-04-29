@@ -1,10 +1,8 @@
-package at.htlkaindorf.ahif18.data;
+package at.htlkaindorf.ahif18.bl;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
-
-import java.util.HashMap;
 
 public class Settings {
 
@@ -51,7 +49,7 @@ public class Settings {
         }
         catch(Exception e)
         {
-
+            e.printStackTrace();
         }
     }
 
