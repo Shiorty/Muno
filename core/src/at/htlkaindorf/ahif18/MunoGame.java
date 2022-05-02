@@ -1,11 +1,9 @@
 package at.htlkaindorf.ahif18;
 
 import at.htlkaindorf.ahif18.bl.FontLoader;
-import at.htlkaindorf.ahif18.ui.MainMenuScreen;
+import at.htlkaindorf.ahif18.ui.Screens.MainMenuScreen;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
