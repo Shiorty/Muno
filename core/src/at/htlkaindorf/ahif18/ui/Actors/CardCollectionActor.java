@@ -1,4 +1,4 @@
-package at.htlkaindorf.ahif18.Actors;
+package at.htlkaindorf.ahif18.ui.Actors;
 
 import at.htlkaindorf.ahif18.data.Card;
 import com.badlogic.gdx.graphics.g2d.Batch;

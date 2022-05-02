@@ -1,6 +1,6 @@
 package at.htlkaindorf.ahif18.bl;
 
-import com.badlogic.gdx.Application;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
@@ -57,11 +57,11 @@ public class FontLoader {
 
     public static BitmapFont generateFont(Font font, int fontSize)
     {
-        if(Gdx.app.getType() == Application.ApplicationType.WebGL){
-            BitmapFont bitmapFont = loadFont(font.path + "html");
-            setFontLineHeight(bitmapFont, fontSize);
-            return bitmapFont;
-        }
+//        if(Gdx.app.getType() == Application.ApplicationType.Desktop){
+//            BitmapFont bitmapFont = loadFont(font.path + "html");
+//            setFontLineHeight(bitmapFont, fontSize);
+//            return bitmapFont;
+//        }
 
         FileHandle[] availableFonts = Gdx.files.internal(font.path).list((dir, name) -> name.matches("-?\\d+.fnt"));
 

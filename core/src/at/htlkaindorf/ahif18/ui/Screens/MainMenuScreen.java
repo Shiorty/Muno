@@ -1,6 +1,6 @@
-package at.htlkaindorf.ahif18.ui;
+package at.htlkaindorf.ahif18.ui.Screens;
 
-import at.htlkaindorf.ahif18.GameScreen;
+import at.htlkaindorf.ahif18.ui.Actors.MainMenuCardsActor;
 import at.htlkaindorf.ahif18.MunoGame;
 import at.htlkaindorf.ahif18.bl.Settings;
 import com.badlogic.gdx.Gdx;

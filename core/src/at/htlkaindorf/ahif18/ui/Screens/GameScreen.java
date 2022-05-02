@@ -1,12 +1,12 @@
-package at.htlkaindorf.ahif18;
+package at.htlkaindorf.ahif18.ui.Screens;
 
-import at.htlkaindorf.ahif18.Actors.CardCollectionActor;
-import at.htlkaindorf.ahif18.Actors.PlayerScrollElement;
-import at.htlkaindorf.ahif18.Actors.UnoCard;
+import at.htlkaindorf.ahif18.MunoGame;
+import at.htlkaindorf.ahif18.ui.Actors.CardCollectionActor;
+import at.htlkaindorf.ahif18.ui.Actors.PlayerScrollElement;
+import at.htlkaindorf.ahif18.ui.Actors.UnoCard;
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.NetworkBuffer;
 import at.htlkaindorf.ahif18.bl.Settings;
-import at.htlkaindorf.ahif18.ui.MainMenuScreen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
