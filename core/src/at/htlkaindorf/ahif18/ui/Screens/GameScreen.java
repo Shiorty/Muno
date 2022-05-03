@@ -42,6 +42,7 @@ public class GameScreen implements Screen {
     //Elements
     private TextButton[] menuButtons;
     private UnoCard lastPlayedCard;
+    private UnoCard deck;
     private CardCollectionActor cardsInHand;
     private List<PlayerScrollElement> scrollElements;
 
@@ -96,9 +97,21 @@ public class GameScreen implements Screen {
         //Make the scrollpane scrollable without having to click on it first
         stage.setScrollFocus(scrollPane);
 
-        lastPlayedCard = new UnoCard(Card.RED_1);
-        lastPlayedCard.setBounds(950 / 2 - 150/2, 400, 150, 150 / 2 * 3);
+        lastPlayedCard = new UnoCard(Card.CARD_BACK);
+        final int CARD_WIDTH = 150;
+        lastPlayedCard.setBounds(950 / 2 - CARD_WIDTH/2, 400, CARD_WIDTH, CARD_WIDTH / 2 * 3);
         stage.addActor(lastPlayedCard);
+
+        deck = new UnoCard(Card.CARD_BACK);
+        final int DECK_WIDTH = 110;
+        deck.setBounds((950 / 2 - CARD_WIDTH/2) + CARD_WIDTH + 25, 400 + (CARD_WIDTH / 2 * 3 - (DECK_WIDTH / 2 * 3)) / 2, DECK_WIDTH, DECK_WIDTH / 2 * 3);
+        deck.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                drawCard();
+            }
+        });
+        stage.addActor(deck);
 
         cardsInHand = new CardCollectionActor();
         cardsInHand.setBounds(25, 25, 900, 150);
@@ -128,6 +141,16 @@ public class GameScreen implements Screen {
     public void returnToMenu(){
         game.changeScreen(new MainMenuScreen(game));
     }
+
+    /**
+     * Adds Random card to Hand
+     */
+    public void drawCard()
+    {
+        Random r = new Random();
+        cardsInHand.addCard(Card.values()[r.nextInt(Card.values().length)]);
+    }
+
 
     @Override
     public void show() {
@@ -174,8 +197,7 @@ public class GameScreen implements Screen {
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F12)){
-            Random r = new Random();
-            cardsInHand.addCard(Card.values()[r.nextInt(Card.values().length)]);
+            drawCard();
         }
 
         int playedCard = cardsInHand.retrievePlayedCard();
@@ -185,7 +207,6 @@ public class GameScreen implements Screen {
             lastPlayedCard.setCard(removedCard);
         }
     }
-
 
     @Override
     public void resize(int width, int height) {
