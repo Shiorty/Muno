@@ -18,4 +18,8 @@ public class UnoCard extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         drawCard(batch, card, this.getX(), this.getY(), getWidth());
     }
+
+    public void setCard(Card card) {
+        this.card = card;
+    }
 }

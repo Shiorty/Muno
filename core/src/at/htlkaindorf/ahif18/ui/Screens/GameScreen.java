@@ -23,8 +23,12 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
+/**
+ * @author Jan Mandl; Andreas Kurz
+ */
 public class GameScreen implements Screen {
 
     //Framework variables
@@ -38,6 +42,7 @@ public class GameScreen implements Screen {
     //Elements
     private TextButton[] menuButtons;
     private UnoCard lastPlayedCard;
+    private UnoCard deck;
     private CardCollectionActor cardsInHand;
     private List<PlayerScrollElement> scrollElements;
 
@@ -51,6 +56,7 @@ public class GameScreen implements Screen {
         skin = new Skin(Gdx.files.internal("ui/vhs-new/vhs_new.json"));
         viewport = new FitViewport(MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]);
         stage = new Stage(viewport);
+        //stage.setDebugAll(true);
 
         backgroundColor = Settings.getInstance().getBackgroundColor();
 
@@ -79,7 +85,6 @@ public class GameScreen implements Screen {
         stage.addActor(menuButtons[1]);
 
         scrollTable = new Table();
-        scrollTable.setDebug(true);
         scrollTable.columnDefaults(0).padTop(10).padBottom(10).width(600).height(80).expandX();
         ScrollPane scrollPane = new ScrollPane(scrollTable, skin);
         scrollPane.setPosition(1600 - 650, 0);
@@ -92,11 +97,24 @@ public class GameScreen implements Screen {
         //Make the scrollpane scrollable without having to click on it first
         stage.setScrollFocus(scrollPane);
 
-        lastPlayedCard = new UnoCard(Card.RED_1);
-        lastPlayedCard.setBounds(520, 450, 280, 200);
+        lastPlayedCard = new UnoCard(Card.CARD_BACK);
+        final int CARD_WIDTH = 150;
+        lastPlayedCard.setBounds(950 / 2 - CARD_WIDTH/2, 400, CARD_WIDTH, CARD_WIDTH / 2 * 3);
         stage.addActor(lastPlayedCard);
 
+        deck = new UnoCard(Card.CARD_BACK);
+        final int DECK_WIDTH = 110;
+        deck.setBounds((950 / 2 - CARD_WIDTH/2) + CARD_WIDTH + 25, 400 + (CARD_WIDTH / 2 * 3 - (DECK_WIDTH / 2 * 3)) / 2, DECK_WIDTH, DECK_WIDTH / 2 * 3);
+        deck.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                drawCard();
+            }
+        });
+        stage.addActor(deck);
+
         cardsInHand = new CardCollectionActor();
+        cardsInHand.setBounds(25, 25, 900, 150);
         cardsInHand.addCard(Card.GREEN_4);
         cardsInHand.addCard(Card.BLUE_8);
         cardsInHand.addCard(Card.GREEN_7);
@@ -124,6 +142,16 @@ public class GameScreen implements Screen {
         game.changeScreen(new MainMenuScreen(game));
     }
 
+    /**
+     * Adds Random card to Hand
+     */
+    public void drawCard()
+    {
+        Random r = new Random();
+        cardsInHand.addCard(Card.values()[r.nextInt(Card.values().length)]);
+    }
+
+
     @Override
     public void show() {
 
@@ -131,10 +159,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        controls(delta);
-
         ScreenUtils.clear(backgroundColor);
         stage.act(delta);
+
+        controls(delta);
 
         /*
         Batch b = stage.getBatch();
@@ -146,16 +174,20 @@ public class GameScreen implements Screen {
         stage.draw();
     }
 
-    public Double controls(float delta)
+    public void controls(float delta)
     {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             returnToMenu();
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
-            scrollTable.setDebug(!scrollTable.getDebug());
+            stage.setDebugAll(!stage.isDebugAll());
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
+            scrollTable.setDebug(!scrollTable.getDebug());
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
             //get current debug state of the first element
             boolean isDebugModeEnabled = scrollElements.size() > 0 && scrollElements.get(0).getDebug();
 
@@ -164,9 +196,17 @@ public class GameScreen implements Screen {
             );
         }
 
-        return null;
-    }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F12)){
+            drawCard();
+        }
 
+        int playedCard = cardsInHand.retrievePlayedCard();
+        if(playedCard != -1)
+        {
+            Card removedCard = cardsInHand.removeCard(playedCard);
+            lastPlayedCard.setCard(removedCard);
+        }
+    }
 
     @Override
     public void resize(int width, int height) {

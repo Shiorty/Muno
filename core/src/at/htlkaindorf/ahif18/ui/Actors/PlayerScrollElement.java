@@ -3,6 +3,7 @@ package at.htlkaindorf.ahif18.ui.Actors;
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
 import at.htlkaindorf.ahif18.bl.FontLoader;
+import at.htlkaindorf.ahif18.ui.DrawUtils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -37,7 +38,7 @@ public class PlayerScrollElement extends Group {
         table = new Table();
         table.setFillParent(true);
         table.add(lbPlayerName).left().padLeft(15);
-        table.add(new UnoCard(Card.CARD_BACK)).width(25).expandX().right();
+        table.add(new UnoCard(Card.CARD_BACK)).width(25).height(25 / 2 * 3).expandX().right();
         table.add(lbCardAmount).padRight(15);
         table.setDebug(false);
 
@@ -54,16 +55,7 @@ public class PlayerScrollElement extends Group {
     public void draw(Batch batch, float parentAlpha) {
 
         //Draw Background Shape
-        batch.end();
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-        shapeRenderer.setTransformMatrix(batch.getTransformMatrix());
-        shapeRenderer.setColor(Color.valueOf("E8FFFF"));
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.rect(getX(), getY(), getWidth(), getHeight());
-        shapeRenderer.end();
-        Gdx.gl.glDisable(GL20.GL_BLEND);
-        batch.begin();
+        DrawUtils.drawRectangle(batch, Color.valueOf("E8FFFF"), getX(), getY(), getWidth(), getHeight());
 
         //set label values
         lbPlayerName.setText(player.getPlayerName());

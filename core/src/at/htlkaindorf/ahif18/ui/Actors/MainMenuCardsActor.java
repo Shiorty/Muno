@@ -69,14 +69,14 @@ public class MainMenuCardsActor extends Actor {
         //draws all of the cards except the center one
         for(int i = 0; i < cards.length - 1; i += 2)
         {
-            drawCard(batch, cards[i], (float) (centerX - currentDistance), centerY, (float) currentWidth);
-            drawCard(batch, cards[i+1], (float) (centerX + currentDistance), centerY, (float) currentWidth);
+            drawCardCentered(batch, cards[i], (float) (centerX - currentDistance), centerY, (float) currentWidth);
+            drawCardCentered(batch, cards[i+1], (float) (centerX + currentDistance), centerY, (float) currentWidth);
 
             //set the distance and width of the next card pair
             currentDistance -= currentWidth;
             currentWidth /= CARD_SCALE_FACTOR;
         }
         //draws the center card
-        drawCard(batch, cards[cards.length - 1], centerX, centerY, (int) widthOfCenterCard);
+        drawCardCentered(batch, cards[cards.length - 1], centerX, centerY, (int) widthOfCenterCard);
     }
 }
