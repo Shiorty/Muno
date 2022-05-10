@@ -1,25 +1,15 @@
 package at.htlkaindorf.ahif18.data;
 
+import at.htlkaindorf.ahif18.network.ByteConverter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PlayerInfo {
     private int playerID;
     private String playerName;
     private int cardAmount;
-
-    public PlayerInfo(int playerID, String name, int cardAmount) {
-        this.playerID = playerID;
-        this.playerName = name;
-        this.cardAmount = cardAmount;
-    }
-
-    public int getPlayerID() {
-        return playerID;
-    }
-
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public int getCardAmount() {
-        return cardAmount;
-    }
 }
