@@ -1,4 +1,7 @@
-package at.htlkaindorf.ahif18.data;
+package at.htlkaindorf.ahif18.network;
+
+import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.data.PlayerInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +26,6 @@ public class NetworkBuffer {
     }
 
     public Card getLastPlayedCard() {
-        return Card.RED_0   ;
+        return Card.R0;
     }
 }

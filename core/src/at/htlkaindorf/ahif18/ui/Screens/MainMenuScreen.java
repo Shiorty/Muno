@@ -1,5 +1,7 @@
 package at.htlkaindorf.ahif18.ui.Screens;
 
+import at.htlkaindorf.ahif18.network.Client;
+import at.htlkaindorf.ahif18.network.Server;
 import at.htlkaindorf.ahif18.ui.Actors.MainMenuCardsActor;
 import at.htlkaindorf.ahif18.MunoGame;
 import at.htlkaindorf.ahif18.bl.Settings;
@@ -90,7 +92,7 @@ public class MainMenuScreen implements Screen {
         exitButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+                closeApplication();
             }
         });
 
@@ -129,6 +131,12 @@ public class MainMenuScreen implements Screen {
         stage.draw();
     }
 
+    public void closeApplication()
+    {
+        this.dispose();
+        Gdx.app.exit();
+    }
+
     public void controls(float delta)
     {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
@@ -137,7 +145,7 @@ public class MainMenuScreen implements Screen {
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
         {
-            Gdx.app.exit();
+            closeApplication();
         }
     }
 
