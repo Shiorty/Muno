@@ -40,6 +40,8 @@ public class ClientConnection extends Thread {
 
     public void startConnection() throws Exception
     {
+        RequestParser.sendInit(socket.getOutputStream(), Card.values());
+
         while(!isInterrupted())
         {
             String message = ByteDealer.receiveString(socket.getInputStream());

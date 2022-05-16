@@ -40,11 +40,19 @@ public class Client extends Thread{
     {
         serverConnection = new Socket(SERVER_IP, Server.PORT);
 
+        Card[] cards = RequestParser.receiveInit(serverConnection.getInputStream());
+
+        System.out.println("Client received: ");
+        for(Card card : cards){
+            System.out.println(card.name());
+        }
+
         while(!isInterrupted())
         {
             ByteDealer.sendString(serverConnection.getOutputStream(), message);
 
-            ByteDealer.sendString(serverConnection.getOutputStream(), "You said + " + message);
+            String reply = ByteDealer.receiveString(serverConnection.getInputStream());
+            System.out.println(reply);
 
             Thread.sleep(1000);
         }

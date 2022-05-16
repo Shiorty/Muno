@@ -6,6 +6,7 @@ import at.htlkaindorf.ahif18.ui.Actors.MainMenuCardsActor;
 import at.htlkaindorf.ahif18.MunoGame;
 import at.htlkaindorf.ahif18.bl.Settings;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -155,6 +156,18 @@ public class MainMenuScreen implements Screen {
 
     public void controls(float delta)
     {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F11))
+        {
+            Graphics.DisplayMode currentMode = Gdx.graphics.getDisplayMode();
+
+            if(Gdx.graphics.isFullscreen()){
+                Gdx.graphics.setWindowedMode(currentMode.width, currentMode.height);
+            }
+            else{
+                Gdx.graphics.setFullscreenMode(currentMode);
+            }
+        }
+
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
         {
             mainTable.setDebug(!mainTable.getDebug());

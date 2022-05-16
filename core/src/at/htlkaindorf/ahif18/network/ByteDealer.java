@@ -39,4 +39,28 @@ public class ByteDealer {
         int length = ByteConverter.bytesToInt(readNBytes(stream, 4));
         return ByteConverter.byteToString(readNBytes(stream, length));
     }
+
+    public static void sendStringArray(OutputStream stream, String[] strings) throws IOException
+    {
+        byte[] length = ByteConverter.intToBytes(strings.length);
+        stream.write(length);
+
+        for(String s : strings)
+        {
+            sendString(stream, s);
+        }
+    }
+
+    public static String[] receiveStringArray(InputStream stream) throws IOException
+    {
+        int length = ByteConverter.bytesToInt(readNBytes(stream, 4));
+
+        String[] strings = new String[length];
+        for(int i = 0; i < length; i++)
+        {
+            strings[i] = receiveString(stream);
+        }
+
+        return strings;
+    }
 }
