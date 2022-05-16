@@ -121,6 +121,7 @@ public class OptionScreen implements Screen {
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE))
         {
             returnToMenu();
+            return;
         }
 
         ScreenUtils.clear(backgroundColor);

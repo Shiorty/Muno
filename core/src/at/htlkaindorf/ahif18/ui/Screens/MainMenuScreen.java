@@ -1,9 +1,12 @@
 package at.htlkaindorf.ahif18.ui.Screens;
 
+import at.htlkaindorf.ahif18.network.Client;
+import at.htlkaindorf.ahif18.network.Server;
 import at.htlkaindorf.ahif18.ui.Actors.MainMenuCardsActor;
 import at.htlkaindorf.ahif18.MunoGame;
 import at.htlkaindorf.ahif18.bl.Settings;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
@@ -38,6 +41,8 @@ public class MainMenuScreen implements Screen {
     private Table mainTable;
 
     private Color backgroundColor;
+
+    Thread[] threads;
 
     public MainMenuScreen(MunoGame game)
     {
@@ -90,7 +95,7 @@ public class MainMenuScreen implements Screen {
         exitButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+                closeApplication();
             }
         });
 
@@ -112,6 +117,20 @@ public class MainMenuScreen implements Screen {
 
         //Add table to stage
         stage.addActor(mainTable);
+
+        threads = new Thread[3];
+        Server server = new Server();
+        server.start();
+
+        Client client = new Client("Helloooooo");
+        client.start();
+
+        Client client2 = new Client("snooooooooooooooooooom");
+        client2.start();
+
+        threads[0] = server;
+        threads[1] = client;
+        threads[2] = client2;
     }
 
     @Override
@@ -129,15 +148,33 @@ public class MainMenuScreen implements Screen {
         stage.draw();
     }
 
+    public void closeApplication()
+    {
+        this.dispose();
+        Gdx.app.exit();
+    }
+
     public void controls(float delta)
     {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F11))
+        {
+            Graphics.DisplayMode currentMode = Gdx.graphics.getDisplayMode();
+
+            if(Gdx.graphics.isFullscreen()){
+                Gdx.graphics.setWindowedMode(currentMode.width, currentMode.height);
+            }
+            else{
+                Gdx.graphics.setFullscreenMode(currentMode);
+            }
+        }
+
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
         {
             mainTable.setDebug(!mainTable.getDebug());
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
         {
-            Gdx.app.exit();
+            closeApplication();
         }
     }
 
@@ -168,5 +205,9 @@ public class MainMenuScreen implements Screen {
         skin.dispose();
         atlas.dispose();
         stage.dispose();
+
+        for(Thread t : threads){
+            t.interrupt();
+        }
     }
 }

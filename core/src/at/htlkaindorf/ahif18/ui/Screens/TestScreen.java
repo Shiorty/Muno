@@ -50,7 +50,7 @@ public class TestScreen implements Screen {
             }
         }
 
-        game.batch.draw(Card.BLUE_0.getTexture(), 0, 0);
+        game.batch.draw(Card.B0.getTexture(), 0, 0);
         game.batch.end();
 
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){

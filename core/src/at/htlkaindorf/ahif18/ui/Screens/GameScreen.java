@@ -5,7 +5,7 @@ import at.htlkaindorf.ahif18.ui.Actors.CardCollectionActor;
 import at.htlkaindorf.ahif18.ui.Actors.PlayerScrollElement;
 import at.htlkaindorf.ahif18.ui.Actors.UnoCard;
 import at.htlkaindorf.ahif18.data.Card;
-import at.htlkaindorf.ahif18.data.NetworkBuffer;
+import at.htlkaindorf.ahif18.network.NetworkBuffer;
 import at.htlkaindorf.ahif18.bl.Settings;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -115,10 +115,10 @@ public class GameScreen implements Screen {
 
         cardsInHand = new CardCollectionActor();
         cardsInHand.setBounds(25, 25, 900, 150);
-        cardsInHand.addCard(Card.GREEN_4);
-        cardsInHand.addCard(Card.BLUE_8);
-        cardsInHand.addCard(Card.GREEN_7);
-        cardsInHand.addCard(Card.RED_0);
+        cardsInHand.addCard(Card.G4);
+        cardsInHand.addCard(Card.B8);
+        cardsInHand.addCard(Card.G7);
+        cardsInHand.addCard(Card.R0);
         stage.addActor(cardsInHand);
 
         nwb = new NetworkBuffer();
@@ -176,8 +176,10 @@ public class GameScreen implements Screen {
 
     public void controls(float delta)
     {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             returnToMenu();
+            return;
+        }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
             stage.setDebugAll(!stage.isDebugAll());
