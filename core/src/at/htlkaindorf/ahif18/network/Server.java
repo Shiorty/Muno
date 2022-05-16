@@ -9,6 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+/**
+ * Server Thread handling new Clients
+ * When a new client connects a new ClientConnection Thread is opened
+ *
+ * Last changed: 2022-05-16
+ * @author Andreas Kurz; Jan Mandl
+ */
 public class Server extends Thread{
 
     public static final int PORT = 60000;
@@ -47,7 +54,7 @@ public class Server extends Thread{
         super.interrupt();
     }
 
-    public  void runServer() throws Exception
+    public void runServer() throws Exception
     {
         socket = new ServerSocket(PORT);
 

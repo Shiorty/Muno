@@ -3,8 +3,15 @@ package at.htlkaindorf.ahif18.network;
 import at.htlkaindorf.ahif18.data.Card;
 import lombok.SneakyThrows;
 
+import java.io.IOException;
 import java.net.Socket;
 
+/**
+ * Connection from the Server to a single Client
+ *
+ * Last changed: 2022-05-16
+ * @author Andreas Kurz
+ */
 public class ClientConnection extends Thread {
 
     //Main Server

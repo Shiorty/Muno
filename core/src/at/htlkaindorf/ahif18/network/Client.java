@@ -3,10 +3,15 @@ package at.htlkaindorf.ahif18.network;
 import at.htlkaindorf.ahif18.data.Card;
 import lombok.SneakyThrows;
 
-import java.io.IOException;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
+/**
+ * Connection from Client to Server
+ * Sending and Receiving are handled in seperate threads
+ *
+ * Last changed: 2022-05-16
+ * @author Andreas Kurz; Jan Mandl
+ */
 public class Client extends Thread{
 
     public static final String SERVER_IP = "127.0.0.1";
