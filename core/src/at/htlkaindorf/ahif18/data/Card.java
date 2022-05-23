@@ -2,59 +2,96 @@ package at.htlkaindorf.ahif18.data;
 
 import com.badlogic.gdx.graphics.Texture;
 
+import java.util.ArrayList;
+
+/**
+ * Saves all the Card types and the corresponding<br>
+ * paths to their textures.
+ * <br><br>
+ * Last changed: 2022-05-16
+ * @author Jan Mandl
+ */
 public enum Card {
 
-    CARD_BACK("cards/card_back.png"),
+    CARD_BACK("card_back.png", CardGroup.values()),
+    PLUS_4("card_back.png", CardGroup.values()),
 
-    R0("cards/red_0.png"),
-    R1("cards/red_1.png"),
-    R2("cards/red_2.png"),
-    R3("cards/red_3.png"),
-    R4("cards/red_4.png"),
-    R5("cards/red_5.png"),
-    R6("cards/red_6.png"),
-    R7("cards/red_7.png"),
-    R8("cards/red_8.png"),
-    R9("cards/red_9.png"),
-    B0("cards/blue_0.png"),
-    B1("cards/blue_1.png"),
-    B2("cards/blue_2.png"),
-    B3("cards/blue_3.png"),
-    B4("cards/blue_4.png"),
-    B5("cards/blue_5.png"),
-    B6("cards/blue_6.png"),
-    B7("cards/blue_7.png"),
-    B8("cards/blue_8.png"),
-    B9("cards/blue_9.png"),
-    G0("cards/green_0.png"),
-    G1("cards/green_1.png"),
-    G2("cards/green_2.png"),
-    G3("cards/green_3.png"),
-    G4("cards/green_4.png"),
-    G5("cards/green_5.png"),
-    G6("cards/green_6.png"),
-    G7("cards/green_7.png"),
-    G8("cards/green_8.png"),
-    G9("cards/green_9.png"),
-    Y0("cards/yellow_0.png"),
-    Y1("cards/yellow_1.png"),
-    Y2("cards/yellow_2.png"),
-    Y3("cards/yellow_3.png"),
-    Y4("cards/yellow_4.png"),
-    Y5("cards/yellow_5.png"),
-    Y6("cards/yellow_6.png"),
-    Y7("cards/yellow_7.png"),
-    Y8("cards/yellow_8.png"),
-    Y9("cards/yellow_9.png");
+    R0("red_0.png", CardGroup.Red, CardGroup.N0),
+    R1("red_1.png", CardGroup.Red, CardGroup.N1),
+    R2("red_2.png", CardGroup.Red, CardGroup.N2),
+    R3("red_3.png", CardGroup.Red, CardGroup.N3),
+    R4("red_4.png", CardGroup.Red, CardGroup.N4),
+    R5("red_5.png", CardGroup.Red, CardGroup.N5),
+    R6("red_6.png", CardGroup.Red, CardGroup.N6),
+    R7("red_7.png", CardGroup.Red, CardGroup.N7),
+    R8("red_8.png", CardGroup.Red, CardGroup.N8),
+    R9("red_9.png", CardGroup.Red, CardGroup.N9),
+    B0("blue_0.png", CardGroup.Blue, CardGroup.N0),
+    B1("blue_1.png", CardGroup.Blue, CardGroup.N1),
+    B2("blue_2.png", CardGroup.Blue, CardGroup.N2),
+    B3("blue_3.png", CardGroup.Blue, CardGroup.N3),
+    B4("blue_4.png", CardGroup.Blue, CardGroup.N4),
+    B5("blue_5.png", CardGroup.Blue, CardGroup.N5),
+    B6("blue_6.png", CardGroup.Blue, CardGroup.N6),
+    B7("blue_7.png", CardGroup.Blue, CardGroup.N7),
+    B8("blue_8.png", CardGroup.Blue, CardGroup.N8),
+    B9("blue_9.png", CardGroup.Blue, CardGroup.N9),
+    G0("green_0.png", CardGroup.Green, CardGroup.N0),
+    G1("green_1.png", CardGroup.Green, CardGroup.N1),
+    G2("green_2.png", CardGroup.Green, CardGroup.N2),
+    G3("green_3.png", CardGroup.Green, CardGroup.N3),
+    G4("green_4.png", CardGroup.Green, CardGroup.N4),
+    G5("green_5.png", CardGroup.Green, CardGroup.N5),
+    G6("green_6.png", CardGroup.Green, CardGroup.N6),
+    G7("green_7.png", CardGroup.Green, CardGroup.N7),
+    G8("green_8.png", CardGroup.Green, CardGroup.N8),
+    G9("green_9.png", CardGroup.Green, CardGroup.N9),
+    Y0("yellow_0.png", CardGroup.Yellow, CardGroup.N0),
+    Y1("yellow_1.png", CardGroup.Yellow, CardGroup.N1),
+    Y2("yellow_2.png", CardGroup.Yellow, CardGroup.N2),
+    Y3("yellow_3.png", CardGroup.Yellow, CardGroup.N3),
+    Y4("yellow_4.png", CardGroup.Yellow, CardGroup.N4),
+    Y5("yellow_5.png", CardGroup.Yellow, CardGroup.N5),
+    Y6("yellow_6.png", CardGroup.Yellow, CardGroup.N6),
+    Y7("yellow_7.png", CardGroup.Yellow, CardGroup.N7),
+    Y8("yellow_8.png", CardGroup.Yellow, CardGroup.N8),
+    Y9("yellow_9.png", CardGroup.Yellow, CardGroup.N9);
 
+    /**
+     * The folder the files are in.
+     */
+    private String folder = "cards/";
+    /**
+     * The texture libgdx needs to display the cards.
+     */
     private Texture texture;
+    /**
+     * The groups the card is in.
+     */
+    private CardGroup[] groups;
 
-    Card(String texture)
-    {
-        this.texture = new Texture(texture);
+    Card(String texture, CardGroup... cardGroups) {
+        this.texture = new Texture(folder + texture);
+        this.groups = cardGroups;
     }
 
     public Texture getTexture() {
         return texture;
+    }
+
+    public boolean hasEqualGroup(Card other) {
+        if(other == null || this.groups == null) {
+            return false;
+        }
+
+        for(CardGroup cg1 : other.groups) {
+            for(CardGroup cg2 : this.groups) {
+                if(cg1 == cg2) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

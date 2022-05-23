@@ -202,11 +202,15 @@ public class GameScreen implements Screen {
             drawCard();
         }
 
-        int playedCard = cardsInHand.retrievePlayedCard();
-        if(playedCard != -1)
+        int playedCardIndex = cardsInHand.retrievePlayedCard();
+        if(playedCardIndex != -1)
         {
-            Card removedCard = cardsInHand.removeCard(playedCard);
-            lastPlayedCard.setCard(removedCard);
+            Card playedCard = cardsInHand.getCard(playedCardIndex);
+
+            if(playedCard.hasEqualGroup(lastPlayedCard.getCard())) {
+                lastPlayedCard.setCard(playedCard);
+                cardsInHand.removeCard(playedCardIndex);
+            }
         }
     }
 

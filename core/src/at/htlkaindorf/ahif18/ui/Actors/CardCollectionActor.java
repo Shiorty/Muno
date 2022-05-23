@@ -75,7 +75,7 @@ public class CardCollectionActor extends Actor {
         cards.add(unoCard);
     }
 
-    public Card removeCard(int cardIndex)
+    public void removeCard(int cardIndex)
     {
         CardInfo c = cards.remove(cardIndex);
 
@@ -83,8 +83,10 @@ public class CardCollectionActor extends Actor {
         {
             cards.get(i).hitBox.x -= c.hitBox.getWidth();
         }
+    }
 
-        return c.card;
+    public Card getCard(int cardIndex) {
+        return cards.get(cardIndex).card;
     }
 
     public int retrievePlayedCard() {

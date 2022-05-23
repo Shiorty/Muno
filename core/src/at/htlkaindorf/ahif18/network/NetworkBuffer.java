@@ -2,30 +2,83 @@ package at.htlkaindorf.ahif18.network;
 
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
+import com.badlogic.gdx.Net;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-//Class that buffers the information that was received from the network
-//doesnt call any network functions (this class just buffers the thinks
-//received from the network)
+/**
+ * Networkbuffer is a class that saves(buffers) what comes from the network<br>
+ * and provides it to the other parts of the program.<br>
+ * <br>
+ * Last changed: 2022-05-16
+ * @author Jan Mandl
+ */
 public class NetworkBuffer {
-    public List<PlayerInfo> fetchAllPlayers() {
-        ArrayList<PlayerInfo> pls = new ArrayList<>();
+
+    /**
+     * A list with the players that participate in the Muno-Session.
+     * Null if there are no other players.
+     */
+    private List<PlayerInfo> playerList;
+    /**
+     * The card that was last played by a player
+     */
+    private Card lastPlayedCard;
+
+    public NetworkBuffer() {
+        //Debug//
+        playerList = new ArrayList<>();
         String randomNames[] = new String[] {
                 "john", "me", "01234567", "pizza","diablo", "pasta42", "h4ck3r"
         };
         Random r = new Random(42);
 
         for(int i = 0;i < 20; ++i) {
-            pls.add(new PlayerInfo(i, randomNames[r.nextInt(randomNames.length)],r.nextInt(99) + 1));
+            playerList.add(new PlayerInfo(i, randomNames[r.nextInt(randomNames.length)],r.nextInt(99) + 1));
         }
 
-        return pls;
+        lastPlayedCard = Card.R0;
+        //Debug//
     }
 
-    public Card getLastPlayedCard() {
-        return Card.R0;
+    /**
+     * Returns a list with all the players the client knows of.
+     * <br><br>
+     * @return list with players and null if there are none
+     */
+    public List<PlayerInfo> fetchAllPlayers() {
+        return playerList;
     }
+
+    /**
+     * Used to add players to the current Muno-Session
+     * <br><br>
+     * @param playerInfo the new player in the session
+     */
+    public void addPlayer(PlayerInfo playerInfo) {
+        playerList.add(playerInfo);
+    }
+
+    /**
+     * Used to remove players from the current Muno-Session
+     * <br><br>
+     * @param playerInfo the player that should be removed from the session
+     */
+    public void removePlayer(PlayerInfo playerInfo) {
+        System.err.printf("removePlayer is not implemented yet");
+    }
+
+    /**
+     * @return the last played card
+     */
+    public Card getLastPlayedCard() {
+        return lastPlayedCard;
+    }
+
+    /**
+     * Updates the Information on a given Player.
+     */
+    public void playerUpdate(PlayerInfo playerInfo) {}
 }
