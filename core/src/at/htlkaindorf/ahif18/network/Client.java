@@ -13,17 +13,18 @@ import java.net.Socket;
  * Last changed: 2022-05-16
  * @author Andreas Kurz; Jan Mandl
  */
-public class Client extends Thread{
+public class Client extends Thread {
 
     public static final String SERVER_IP = "127.0.0.1";
 
     private Thread receiveThread;
-
     private Socket serverConnection;
     private String message;
+    private NetworkBuffer networkBuffer;
 
-    public Client(String message){
-        this.message = message;
+    public Client(NetworkBuffer nwb){
+        networkBuffer = nwb;
+        message = "I <3 cats";
     }
 
     @Override
@@ -75,9 +76,7 @@ public class Client extends Thread{
     }
 
     public void receivedInit(Card[] cards) {
-        for(Card card : cards){
-            System.out.println(card.name());
-        }
+        networkBuffer.setCards(cards);
     }
 
     public void receivedTalk(String message) {

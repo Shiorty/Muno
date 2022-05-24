@@ -1,6 +1,7 @@
 package at.htlkaindorf.ahif18.ui.Actors;
 
 import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.network.NetworkBuffer;
 import at.htlkaindorf.ahif18.ui.DrawUtils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -8,13 +9,15 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Displays the cards held by the player. 
+ * <br>
+ * Last changed: 2022-05-24
  * @author Jan Mandl; Andreas Kurz
  */
 public class CardCollectionActor extends Actor {
@@ -36,7 +39,7 @@ public class CardCollectionActor extends Actor {
     private List<CardInfo> cards;
     private int playedCard;
 
-    public CardCollectionActor() {
+    public CardCollectionActor(NetworkBuffer nwb) {
         cards = new ArrayList<>();
         playedCard = -1;
     }
@@ -53,6 +56,12 @@ public class CardCollectionActor extends Actor {
             }
         }
     }
+
+	public void setCards(List<Card> cardList) {
+        for(Card c : cardList) {
+			addCard(c);
+		}
+	}
 
     public void addCard(Card c) {
         //counter for going through all the cards to

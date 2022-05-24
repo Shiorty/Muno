@@ -7,6 +7,6 @@ package at.htlkaindorf.ahif18.bl;
  * Last changed: 2022-05-24
  * @author Jan Mandl
  */
-public interface I_Updatable {
-    public void update();
+public interface I_Notifiable {
+    public void notifyElement();
 }
