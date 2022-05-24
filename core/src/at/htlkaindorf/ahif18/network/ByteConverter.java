@@ -9,7 +9,6 @@ import java.util.Arrays;
  * @author Andreas Kurz; Jan Mandl
  */
 public class ByteConverter {
-
     /**
      * Converts a integer into a byte<br>
      * 128 gets subtracted from the value

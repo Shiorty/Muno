@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Server Thread handling new Clients
@@ -101,7 +102,7 @@ public class Server extends Thread{
 
             int playerID = playerIDSequence.nextValue();
 
-            ClientConnection connection = new ClientConnection(clientSocket, playerID);
+            ClientConnection connection = new ClientConnection(this, clientSocket, playerID);
 
             players.add(new Player(
                 connection,
@@ -120,18 +121,23 @@ public class Server extends Thread{
 
     // --- Gameplay --- //
 
-//    public void playerJoined(int id, String name){
-//        Player newPlayer = findPlayerOfID(id);
-//        newPlayer.setName(name);
-//
-//        newPlayer.getConnection().sendInit(newPlayer.getCards());
-//
-//        for(Player player : players){
-//            if(player.getPlayerID() == newPlayer.getPlayerID()){
-//                continue;
-//            }
-//
-//            player.getConnection().playerJoined(newPlayer.getPlayerInfo());
-//        }
-//    }
+    public void playerJoined(int id, String name){
+        Player newPlayer = findPlayerOfID(id);
+        newPlayer.setName(name);
+
+        List<PlayerInfo> playerInfos = players.stream()
+                                    .filter((player) -> player.getPlayerID() != id)
+                                    .map(Player::getPlayerInfo)
+                                    .collect(Collectors.toList());
+
+        newPlayer.getConnection().sendInitResponse(playerInfos, newPlayer.getCards());
+
+        for(Player player : players){
+            if(player.getPlayerID() == newPlayer.getPlayerID()){
+                continue;
+            }
+
+            player.getConnection().playerJoined(newPlayer.getPlayerInfo());
+        }
+    }
 }
