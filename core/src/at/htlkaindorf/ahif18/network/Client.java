@@ -5,11 +5,19 @@ import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
+/**
+ * Connection from Client to Server
+ * Sending and Receiving are handled in seperate threads
+ *
+ * Last changed: 2022-05-16
+ * @author Andreas Kurz; Jan Mandl
+ */
 public class Client extends Thread{
 
     public static final String SERVER_IP = "127.0.0.1";
+
+    private Thread receiveThread;
 
     private Socket serverConnection;
     private String message;
@@ -39,22 +47,40 @@ public class Client extends Thread{
     public void startClient() throws Exception
     {
         serverConnection = new Socket(SERVER_IP, Server.PORT);
+        receiveThread = new Thread(this::receiveTask);
+        receiveThread.start();
 
-        Card[] cards = RequestParser.receiveInit(serverConnection.getInputStream());
-
-        System.out.println("Client received: ");
-        for(Card card : cards){
-            System.out.println(card.name());
-        }
+        MessageConverter.sendClientInit(serverConnection.getOutputStream());
 
         while(!isInterrupted())
         {
-            ByteDealer.sendString(serverConnection.getOutputStream(), message);
-
-            String reply = ByteDealer.receiveString(serverConnection.getInputStream());
-            System.out.println(reply);
-
+            MessageConverter.sendTalk(serverConnection.getOutputStream(), message);
             Thread.sleep(1000);
         }
+    }
+
+    public void receiveTask()
+    {
+        try
+        {
+            while(!Thread.currentThread().isInterrupted())
+            {
+                MessageConverter.receiveServerRequest(this, serverConnection.getInputStream());
+            }
+        }
+        catch(IOException ioException)
+        {
+            ioException.printStackTrace();
+        }
+    }
+
+    public void receivedInit(Card[] cards) {
+        for(Card card : cards){
+            System.out.println(card.name());
+        }
+    }
+
+    public void receivedTalk(String message) {
+        System.out.println(message);
     }
 }
