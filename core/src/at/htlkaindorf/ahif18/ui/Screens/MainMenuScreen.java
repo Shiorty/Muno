@@ -29,14 +29,20 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class MainMenuScreen implements Screen {
 
     private MunoGame game;
+
     private OrthographicCamera camera;
     private Batch batch;
     private Stage stage;
     private Viewport viewport;
+
     private TextureAtlas atlas;
     private Skin skin;
+
     private Table mainTable;
+
     private Color backgroundColor;
+
+    Thread[] threads;
 
     public MainMenuScreen(MunoGame game)
     {
@@ -111,6 +117,20 @@ public class MainMenuScreen implements Screen {
 
         //Add table to stage
         stage.addActor(mainTable);
+
+        threads = new Thread[3];
+        Server server = new Server();
+        server.start();
+
+        Client client = new Client("Helloooooo");
+        client.start();
+
+        Client client2 = new Client("snooooooooooooooooooom");
+        client2.start();
+
+        threads[0] = server;
+        threads[1] = client;
+        threads[2] = client2;
     }
 
     @Override
@@ -186,5 +206,9 @@ public class MainMenuScreen implements Screen {
         skin.dispose();
         atlas.dispose();
         stage.dispose();
+
+        for(Thread t : threads){
+            t.interrupt();
+        }
     }
 }

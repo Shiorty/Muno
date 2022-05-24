@@ -1,16 +1,18 @@
 package at.htlkaindorf.ahif18.network;
 
-import at.htlkaindorf.ahif18.bl.I_Notifiable;
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
+import com.badlogic.gdx.Net;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 /**
  * Networkbuffer is a class that saves(buffers) what comes from the network<br>
  * and provides it to the other parts of the program.<br>
  * <br>
- * Last changed: 2022-05-24
+ * Last changed: 2022-05-16
  * @author Jan Mandl
  */
 public class NetworkBuffer {
@@ -24,13 +26,9 @@ public class NetworkBuffer {
      * The card that was last played by a player
      */
     private Card lastPlayedCard;
-    private ArrayList<Card> cards;
-	private List<I_Notifiable> observers;
 
-    public NetworkBuffer(I_Notifiable observer) {
+    public NetworkBuffer() {
         //Debug//
-        cards = new ArrayList<>();
-        observers = new ArrayList<>();
         playerList = new ArrayList<>();
         String randomNames[] = new String[] {
                 "john", "me", "01234567", "pizza","diablo", "pasta42", "h4ck3r"
@@ -43,8 +41,6 @@ public class NetworkBuffer {
 
         lastPlayedCard = Card.R0;
         //Debug//
-
-        this.observers.add(observer);
     }
 
     /**
@@ -55,15 +51,6 @@ public class NetworkBuffer {
     public List<PlayerInfo> fetchAllPlayers() {
         return playerList;
     }
-	
-	public List<Card> fetchAllCards() {
-        return cards;
-    }
-
-    public void setCards(Card[] cardArr) {
-        cards = new ArrayList(Arrays.asList(cardArr));
-		notifyObservers();
-    }
 
     /**
      * Used to add players to the current Muno-Session
@@ -72,7 +59,6 @@ public class NetworkBuffer {
      */
     public void addPlayer(PlayerInfo playerInfo) {
         playerList.add(playerInfo);
-		notifyObservers();
     }
 
     /**
@@ -87,24 +73,12 @@ public class NetworkBuffer {
     /**
      * @return the last played card
      */
-    public Card fetchLastPlayedCard() {
+    public Card getLastPlayedCard() {
         return lastPlayedCard;
     }
 
     /**
      * Updates the Information on a given Player.
-     *//*
-    public void updatePlayer(PlayerInfo playerInfo) {
-        System.err.printf("updatePlayer is not implemented yet");
-    }*/
-
-	public void addObserver(I_Notifiable other) {
-		this.observers.add(other);
-	}
-
-	public void notifyObservers() {
-		for(I_Notifiable u : observers) {
-			u.notifyElement();
-		}
-	}
+     */
+    public void playerUpdate(PlayerInfo playerInfo) {}
 }
