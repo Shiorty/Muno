@@ -20,11 +20,17 @@ public class Client extends Thread{
     public static final String SERVER_IP = "127.0.0.1";
 
     private Thread receiveThread;
-
     private Socket serverConnection;
     private String message;
+    private NetworkBuffer networkBuffer;
 
-    public Client(String message){
+
+    public Client(NetworkBuffer nwb){
+        this(nwb, "I <3 cats");
+    }
+
+    public Client(NetworkBuffer nwb, String message){
+        networkBuffer = nwb;
         Thread.currentThread().setName(message);
         this.message = message;
     }
@@ -78,6 +84,7 @@ public class Client extends Thread{
     }
 
     public void receivedInit(List<Card> cards, List<PlayerInfo> otherPlayers) {
+        networkBuffer.setCards(cards);
 
         System.out.println("Client: " + Thread.currentThread().getName());
 

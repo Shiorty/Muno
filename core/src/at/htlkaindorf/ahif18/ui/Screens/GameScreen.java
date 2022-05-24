@@ -1,6 +1,10 @@
 package at.htlkaindorf.ahif18.ui.Screens;
 
 import at.htlkaindorf.ahif18.MunoGame;
+import at.htlkaindorf.ahif18.bl.I_Notifiable;
+import at.htlkaindorf.ahif18.data.PlayerInfo;
+import at.htlkaindorf.ahif18.network.Client;
+import at.htlkaindorf.ahif18.network.Server;
 import at.htlkaindorf.ahif18.ui.Actors.CardCollectionActor;
 import at.htlkaindorf.ahif18.ui.Actors.PlayerScrollElement;
 import at.htlkaindorf.ahif18.ui.Actors.UnoCard;
@@ -29,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * @author Jan Mandl; Andreas Kurz
  */
-public class GameScreen implements Screen {
+public class GameScreen implements Screen, I_Notifiable {
 
     //Framework variables
     private MunoGame game;
@@ -49,6 +53,7 @@ public class GameScreen implements Screen {
     //Other Variables
     //buffers the network
     private NetworkBuffer nwb;
+    private Thread[] threads;
 
     public GameScreen(MunoGame game)
     {
@@ -156,6 +161,10 @@ public class GameScreen implements Screen {
         cardsInHand.addCard(Card.values()[r.nextInt(Card.values().length)]);
     }
 
+    public void updateCards() {
+        cardsInHand.setCards(nwb.fetchAllCards());
+    }
+
 
     @Override
     public void show() {
@@ -188,10 +197,6 @@ public class GameScreen implements Screen {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1)){
             stage.setDebugAll(!stage.isDebugAll());
-        }
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F2)){
-            scrollTable.setDebug(!scrollTable.getDebug());
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F3)){
@@ -243,6 +248,10 @@ public class GameScreen implements Screen {
     public void dispose() {
         stage.dispose();
         skin.dispose();
+
+        for(Thread t : threads){
+            t.interrupt();
+        }
     }
 
 	public void notifyElement() {

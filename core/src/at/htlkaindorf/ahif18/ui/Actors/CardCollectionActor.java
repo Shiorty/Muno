@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Displays the cards held be the player
+ * <br>
+ * Last changed: 2022-05-24
  * @author Jan Mandl; Andreas Kurz
  */
 public class CardCollectionActor extends Actor {
@@ -51,6 +54,13 @@ public class CardCollectionActor extends Actor {
             {
                 DrawUtils.drawRectangleOutline(batch, Color.YELLOW, ca.hitBox.x + getXOffset(), ca.hitBox.y, ca.hitBox.width, ca.hitBox.height);
             }
+        }
+    }
+
+    public void setCards(List<Card> cardList) {
+        //TODO setCards currently just adds all cards without removing them
+        for(Card c : cardList) {
+            addCard(c);
         }
     }
 
