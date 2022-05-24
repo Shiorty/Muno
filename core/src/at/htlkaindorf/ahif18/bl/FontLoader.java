@@ -44,7 +44,7 @@ public class FontLoader {
         font.getData().setScale(height * font.getScaleY() / font.getLineHeight());
     }
 
-    private static BitmapFont loadFont(String filename)
+    public static BitmapFont loadFont(String filename)
     {
         //load font
         BitmapFont font = new BitmapFont(Gdx.files.internal(filename + ".fnt"), false);
