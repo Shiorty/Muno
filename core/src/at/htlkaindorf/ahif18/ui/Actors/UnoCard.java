@@ -22,4 +22,8 @@ public class UnoCard extends Actor {
     public void setCard(Card card) {
         this.card = card;
     }
+
+    public Card getCard() {
+        return card;
+    }
 }

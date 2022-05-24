@@ -12,7 +12,7 @@ import static at.htlkaindorf.ahif18.ui.DrawUtils.*;
  * Displays multiple cards<br>
  * The number of cards should never be even!
  *
- * Last changed: 2022.04.24
+ * Last changed: 2022-04-24
  * @author Andreas Kurz
  */
 public class MainMenuCardsActor extends Actor {
