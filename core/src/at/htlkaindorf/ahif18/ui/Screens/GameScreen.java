@@ -1,15 +1,11 @@
 package at.htlkaindorf.ahif18.ui.Screens;
 
 import at.htlkaindorf.ahif18.MunoGame;
-import at.htlkaindorf.ahif18.data.PlayerInfo;
-import at.htlkaindorf.ahif18.network.Server;
 import at.htlkaindorf.ahif18.ui.Actors.CardCollectionActor;
 import at.htlkaindorf.ahif18.ui.Actors.PlayerScrollElement;
 import at.htlkaindorf.ahif18.ui.Actors.UnoCard;
 import at.htlkaindorf.ahif18.data.Card;
-import at.htlkaindorf.ahif18.network.Client;
 import at.htlkaindorf.ahif18.network.NetworkBuffer;
-import at.htlkaindorf.ahif18.bl.I_Notifiable;
 import at.htlkaindorf.ahif18.bl.Settings;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -33,7 +29,7 @@ import java.util.stream.Collectors;
 /**
  * @author Jan Mandl; Andreas Kurz
  */
-public class GameScreen implements Screen, I_Notifiable {
+public class GameScreen implements Screen {
 
     //Framework variables
     private MunoGame game;
@@ -53,8 +49,7 @@ public class GameScreen implements Screen, I_Notifiable {
     //Other Variables
     //buffers the network
     private NetworkBuffer nwb;
-	Thread[] threads;
-	
+
     public GameScreen(MunoGame game)
     {
         this.game = game;
@@ -118,7 +113,7 @@ public class GameScreen implements Screen, I_Notifiable {
         });
         stage.addActor(deck);
 
-        cardsInHand = new CardCollectionActor(nwb);
+        cardsInHand = new CardCollectionActor();
         cardsInHand.setBounds(25, 25, 900, 150);
         cardsInHand.addCard(Card.G4);
         cardsInHand.addCard(Card.B8);
@@ -126,33 +121,17 @@ public class GameScreen implements Screen, I_Notifiable {
         cardsInHand.addCard(Card.R0);
         stage.addActor(cardsInHand);
 
-		{
-			nwb = new NetworkBuffer(this);
-		
-			Server server = new Server();
-			Client client = new Client(nwb);
-			Client client2 = new Client(nwb);
+        nwb = new NetworkBuffer();
 
-			threads = new Thread[2];
-			server.start();
-			client.start();
-			//client2.start();
-			threads[0] = server;
-			threads[1] = client;
-			//threads[2] = client2;
-		}
-
-        /*
         scrollElements = nwb.fetchAllPlayers()
                             .stream()
                             .map(PlayerScrollElement::new)
                             .collect(Collectors.toList());
 
-
         scrollElements.forEach(element -> {
             scrollTable.add(element);
             scrollTable.row();
-        });*/
+        });
 
         scrollPane.validate();
 //        scrollPane.setScrollPercentY(20f / Card.values().length);
@@ -166,14 +145,11 @@ public class GameScreen implements Screen, I_Notifiable {
     /**
      * Adds Random card to Hand
      */
-    public void drawCard() {
+    public void drawCard()
+    {
         Random r = new Random();
         cardsInHand.addCard(Card.values()[r.nextInt(Card.values().length)]);
     }
-
-	public void updateCards() {
-		cardsInHand.setCards(nwb.fetchAllCards());
-	}
 
 
     @Override
@@ -222,6 +198,10 @@ public class GameScreen implements Screen, I_Notifiable {
             );
         }
 
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F12)){
+            drawCard();
+        }
+
         int playedCardIndex = cardsInHand.retrievePlayedCard();
         if(playedCardIndex != -1)
         {
@@ -258,23 +238,5 @@ public class GameScreen implements Screen, I_Notifiable {
     public void dispose() {
         stage.dispose();
         skin.dispose();
-
-        for(Thread t : threads){
-            t.interrupt();
-        }
     }
-
-	public void notifyElement() {
-        List<PlayerInfo> pi = nwb.fetchAllPlayers();
-        System.err.println(pi);
-
-        scrollElements = pi
-            .stream()
-            .map(PlayerScrollElement::new)
-            .collect(Collectors.toList());
-
-		lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
-		cardsInHand.setCards(nwb.fetchAllCards());
-
-	}
 }
