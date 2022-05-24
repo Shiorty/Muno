@@ -1,10 +1,12 @@
 package at.htlkaindorf.ahif18.network;
 
 import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.data.PlayerInfo;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * Connection from Client to Server
@@ -22,9 +24,15 @@ public class Client extends Thread {
     private String message;
     private NetworkBuffer networkBuffer;
 
+
     public Client(NetworkBuffer nwb){
+        this(nwb, "I <3 cats");
+    }
+      
+    public Client(NetworkBuffer nwb, String message){
         networkBuffer = nwb;
-        message = "I <3 cats";
+        Thread.currentThread().setName(message);
+        this.message = message;
     }
 
     @Override
@@ -51,7 +59,7 @@ public class Client extends Thread {
         receiveThread = new Thread(this::receiveTask);
         receiveThread.start();
 
-        MessageConverter.sendClientInit(serverConnection.getOutputStream());
+        MessageConverter.sendClientInit(serverConnection.getOutputStream(), message);
 
         while(!isInterrupted())
         {
@@ -75,11 +83,20 @@ public class Client extends Thread {
         }
     }
 
-    public void receivedInit(Card[] cards) {
+    public void receivedInit(List<Card> cards, List<PlayerInfo> otherPlayers) {
         networkBuffer.setCards(cards);
+  
+        System.out.println("Client: " + Thread.currentThread().getName());
+
+        System.out.println(message + " " + cards);
+        System.out.println(message + " " + otherPlayers);
     }
 
     public void receivedTalk(String message) {
         System.out.println(message);
+    }
+
+    public void playerJoined(PlayerInfo newPlayer) {
+        System.out.println(message + " New Player Joined: " + newPlayer);
     }
 }

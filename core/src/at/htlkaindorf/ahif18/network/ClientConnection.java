@@ -2,10 +2,13 @@ package at.htlkaindorf.ahif18.network;
 
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.ConcurrentQueue;
+import at.htlkaindorf.ahif18.data.PlayerInfo;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -28,8 +31,9 @@ public class ClientConnection extends Thread {
     //Client information
     private Socket socket;
 
-    public ClientConnection(Socket socket, int playerID)
+    public ClientConnection(Server server, Socket socket, int playerID)
     {
+        this.server = server;
         this.socket = socket;
         this.playerID = playerID;
     }
@@ -61,8 +65,6 @@ public class ClientConnection extends Thread {
         receiveThread = new Thread(this::receiveTask);
         receiveThread.start();
 
-        MessageConverter.sendServerInit(socket.getOutputStream(), Card.values());
-
         while(!isInterrupted())
         {
             Runnable r = sendTasks.pop();
@@ -85,23 +87,25 @@ public class ClientConnection extends Thread {
         }
     }
 
-    public Card[] generateNewCards(int amount)
+    public void receiveInit(String playerName)
     {
-        Random r = new Random();
-
-        Card[] cards = new Card[amount];
-        for(int i = 0; i < amount; i++){
-            cards[i] = Card.values()[r.nextInt(Card.values().length)];
-        }
-
-        return cards;
+        server.playerJoined(playerID, playerName);
     }
 
-    public void receiveInit()
-    {
+    public void sendInitResponse(List<PlayerInfo> playerInfos, ArrayList<Card> cards) {
         sendTasks.push(() -> {
             try {
-                MessageConverter.sendServerInit(socket.getOutputStream(), generateNewCards(10));
+                MessageConverter.sendServerInit(socket.getOutputStream(), playerInfos, cards);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
+    }
+
+    public void playerJoined(PlayerInfo playerInfo) {
+        sendTasks.push(() -> {
+            try {
+                MessageConverter.sendServerPlayerJoined(socket.getOutputStream(), playerInfo);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
