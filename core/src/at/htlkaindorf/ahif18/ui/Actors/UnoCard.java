@@ -1,18 +1,11 @@
 package at.htlkaindorf.ahif18.ui.Actors;
 
-import at.htlkaindorf.ahif18.bl.I_Notifiable;
 import at.htlkaindorf.ahif18.data.Card;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import static at.htlkaindorf.ahif18.ui.DrawUtils.*;
 
-/**
- * GUI class that is used to represent single Uno cards.
- * <br>
- * Last changed: 2022-05-24
- * @author Jan Mandl
- */
 public class UnoCard extends Actor {
 
     private Card card;
