@@ -1,11 +1,14 @@
 package at.htlkaindorf.ahif18.network;
 
 import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.data.PlayerInfo;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Provides Static methods to create and receive different Message Types
@@ -53,8 +56,8 @@ public class MessageConverter {
         switch(type)
         {
             case INIT:
-                String playerName = "Max";
-                connection.receiveInit();
+                String playerName = ByteDealer.receiveString(inputStream);
+                connection.receiveInit(playerName);
                 break;
 
             case TALK:
@@ -70,8 +73,14 @@ public class MessageConverter {
         switch(type)
         {
             case INIT:
-                Card[] cards = receiveCardArray(inputStream);
-                client.receivedInit(cards);
+                List<Card> cards = ByteDealer.receiveCardList(inputStream);
+                List<PlayerInfo> playerInfos = ByteDealer.receivePlayerInfoList(inputStream);
+                client.receivedInit(cards, playerInfos);
+                break;
+
+            case PLAYER_JOINED:
+                PlayerInfo newPlayer = ByteDealer.receivePlayerInfo(inputStream);
+                client.playerJoined(newPlayer);
                 break;
 
             case TALK:
@@ -86,21 +95,22 @@ public class MessageConverter {
         ByteDealer.sendString(stream, message);
     }
 
-    public static void sendClientInit(OutputStream stream) throws IOException
+    public static void sendClientInit(OutputStream stream, String name) throws IOException
     {
         sendRequestType(stream, MessageType.INIT);
+        ByteDealer.sendString(stream, name);
     }
 
-    public static void sendServerInit(OutputStream stream, Card[] cards) throws IOException
+    public static void sendServerInit(OutputStream stream, List<PlayerInfo> otherPlayers, ArrayList<Card> cards) throws IOException
     {
         sendRequestType(stream, MessageType.INIT);
-
-        String[] cardNames = Arrays.stream(cards).map(Card::name).toArray(String[]::new);
-        ByteDealer.sendStringArray(stream, cardNames);
+        ByteDealer.sendCardList(stream, cards);
+        ByteDealer.sendPlayerInfoList(stream, otherPlayers);
     }
 
-    public static Card[] receiveCardArray(InputStream stream) throws IOException
+    public static void sendServerPlayerJoined(OutputStream stream, PlayerInfo otherPlayers) throws IOException
     {
-        return Arrays.stream(ByteDealer.receiveStringArray(stream)).map(Card::valueOf).toArray(Card[]::new);
+        sendRequestType(stream, MessageType.PLAYER_JOINED);
+        ByteDealer.sendPlayerInfo(stream, otherPlayers);
     }
 }
