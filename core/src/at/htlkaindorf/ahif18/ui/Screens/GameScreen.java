@@ -120,43 +120,34 @@ public class GameScreen implements Screen, I_Notifiable {
 
         cardsInHand = new CardCollectionActor(nwb);
         cardsInHand.setBounds(25, 25, 900, 150);
-        cardsInHand.addCard(Card.G4);
-        cardsInHand.addCard(Card.B8);
-        cardsInHand.addCard(Card.G7);
-        cardsInHand.addCard(Card.R0);
         stage.addActor(cardsInHand);
 
-		{
-			nwb = new NetworkBuffer(this);
-		
-			Server server = new Server();
-			Client client = new Client(nwb);
-			Client client2 = new Client(nwb);
 
-			threads = new Thread[2];
-			server.start();
-			client.start();
-			//client2.start();
-			threads[0] = server;
-			threads[1] = client;
-			//threads[2] = client2;
-		}
+        //--- Network Stuff ---//
+        {
+            nwb = new NetworkBuffer(this);
 
-        /*
-        scrollElements = nwb.fetchAllPlayers()
-                            .stream()
-                            .map(PlayerScrollElement::new)
-                            .collect(Collectors.toList());
+            Server server = new Server();
+            Client client = new Client(nwb);
+            Client client2 = new Client(nwb);
+
+            threads = new Thread[2];
+            server.start();
+            client.start();
+            //client2.start();
+            threads[0] = server;
+            threads[1] = client;
+            //threads[2] = client2;
+        }
+        //--- End Network Stuff ---//
 
 
-        scrollElements.forEach(element -> {
-            scrollTable.add(element);
-            scrollTable.row();
-        });*/
-
+        //TODO Check what validate even does
         scrollPane.validate();
+
+        //is used to set the scroll percentage
 //        scrollPane.setScrollPercentY(20f / Card.values().length);
-        scrollPane.updateVisualScroll();
+//        scrollPane.updateVisualScroll();
     }
 
     public void returnToMenu(){
@@ -268,13 +259,19 @@ public class GameScreen implements Screen, I_Notifiable {
         List<PlayerInfo> pi = nwb.fetchAllPlayers();
         System.err.println(pi);
 
-        scrollElements = pi
-            .stream()
-            .map(PlayerScrollElement::new)
-            .collect(Collectors.toList());
+        lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
+        cardsInHand.setCards(nwb.fetchAllCards());
 
-		lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
-		cardsInHand.setCards(nwb.fetchAllCards());
+        Gdx.app.postRunnable(() -> {
+            scrollElements = pi
+                    .stream()
+                    .map(PlayerScrollElement::new)
+                    .collect(Collectors.toList());
 
+            scrollElements.forEach(element -> {
+                scrollTable.add(element);
+                scrollTable.row();
+            });
+        });
 	}
 }

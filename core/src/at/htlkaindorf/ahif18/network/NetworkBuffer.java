@@ -24,7 +24,7 @@ public class NetworkBuffer {
      * The card that was last played by a player
      */
     private Card lastPlayedCard;
-    private ArrayList<Card> cards;
+    private List<Card> cards;
 	private List<I_Notifiable> observers;
 
     public NetworkBuffer(I_Notifiable observer) {
@@ -60,8 +60,8 @@ public class NetworkBuffer {
         return cards;
     }
 
-    public void setCards(Card[] cardArr) {
-        cards = new ArrayList(Arrays.asList(cardArr));
+    public void setCards(List<Card> cards) {
+        this.cards = cards;
 		notifyObservers();
     }
 

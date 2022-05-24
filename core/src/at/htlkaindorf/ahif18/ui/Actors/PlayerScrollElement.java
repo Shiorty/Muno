@@ -67,20 +67,6 @@ public class PlayerScrollElement extends Group {
 
     public String formatPlayerCardAmount(int cardAmount)
     {
-        String result = cardAmount + "";
-
-        result = repeatString("0", 2 - result.length()) + result;
-        result = " X " + result;
-
-        return result;
-    }
-
-    public String repeatString(String string, int count)
-    {
-        if(count <= 0){
-            return "";
-        }
-
-        return String.join("", Collections.nCopies(count, string));
+        return String.format(" X %02d", cardAmount);
     }
 }
