@@ -151,7 +151,8 @@ public class MainMenuScreen implements Screen {
     public void closeApplication()
     {
         this.dispose();
-        Gdx.app.exit();
+//        Gdx.app.exit();
+        System.exit(0);
     }
 
     public void controls(float delta)

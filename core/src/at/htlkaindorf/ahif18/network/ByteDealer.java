@@ -22,7 +22,7 @@ public class ByteDealer {
      */
     public static byte[] readNBytes(InputStream stream, int n) throws IOException
     {
-        if(n < 0){
+        if(n <= 0){
             return new byte[0];
         }
 

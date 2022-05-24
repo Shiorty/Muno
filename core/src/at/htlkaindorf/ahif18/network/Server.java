@@ -1,13 +1,16 @@
 package at.htlkaindorf.ahif18.network;
 
-import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.data.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
+import java.util.Random;
 
 /**
  * Server Thread handling new Clients
@@ -19,19 +22,53 @@ import java.util.Queue;
 public class Server extends Thread{
 
     public static final int PORT = 60000;
+    public static final int DEFAULT_CARD_AMOUNT = 7;
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private class Player
+    {
+        private ClientConnection connection;
+        private String name;
+        private int playerID;
+        private ArrayList<Card> cards;
+
+        public Player(ClientConnection connection, int playerID){
+            this.connection = connection;
+            this.playerID = playerID;
+            generateNewCards(DEFAULT_CARD_AMOUNT);
+        }
+
+        public void generateNewCards(int amount)
+        {
+            Random r = new Random();
+
+            cards  = new ArrayList<>(amount);
+            for(int i = 0; i < amount; i++){
+                cards.add(Card.values()[r.nextInt(Card.values().length)]);
+            }
+        }
+
+        public PlayerInfo getPlayerInfo()
+        {
+            return new PlayerInfo(playerID, name, cards.size());
+        }
+    }
+
+    //Network
     private ServerSocket socket;
 
     //Game Information
-    private Queue<Card> stack;
     private int currentPlayer;
-
-    //Player Connections
-    private List<ClientConnection> connections;
+    private List<Player> players;
+    private Sequence playerIDSequence;
 
     public Server()
     {
-        connections = new ArrayList<>();
+        players = new ArrayList<>();
+        currentPlayer = -1;
+        playerIDSequence = new Sequence();
     }
 
     @Override
@@ -49,7 +86,7 @@ public class Server extends Thread{
     public void interrupt() {
         System.out.println("Server Interrupted");
 
-        connections.forEach(Thread::interrupt);
+        players.stream().map(Player::getConnection).forEach(Thread::interrupt);
         socket.close();
         super.interrupt();
     }
@@ -62,9 +99,39 @@ public class Server extends Thread{
         {
             Socket clientSocket = socket.accept();
 
-            ClientConnection connection = new ClientConnection(clientSocket);
-            connections.add(connection);
+            int playerID = playerIDSequence.nextValue();
+
+            ClientConnection connection = new ClientConnection(clientSocket, playerID);
+
+            players.add(new Player(
+                connection,
+                playerID
+            ));
+
             connection.start();
         }
     }
+
+    private Player findPlayerOfID(int id){
+        return players.stream().filter(player ->
+            id == player.getPlayerID()
+        ).findFirst().get();
+    }
+
+    // --- Gameplay --- //
+
+//    public void playerJoined(int id, String name){
+//        Player newPlayer = findPlayerOfID(id);
+//        newPlayer.setName(name);
+//
+//        newPlayer.getConnection().sendInit(newPlayer.getCards());
+//
+//        for(Player player : players){
+//            if(player.getPlayerID() == newPlayer.getPlayerID()){
+//                continue;
+//            }
+//
+//            player.getConnection().playerJoined(newPlayer.getPlayerInfo());
+//        }
+//    }
 }
