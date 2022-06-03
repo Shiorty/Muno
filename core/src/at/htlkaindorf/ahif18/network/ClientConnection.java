@@ -131,4 +131,10 @@ public class ClientConnection extends Thread {
             MessageConverter.sendServerDrawCard(socket.getOutputStream(), card);
         });
     }
+
+    public void sendPlayerUpdate(PlayerInfo playerInfo, int playerIDOfCurrentPlayer){
+        sendTasks.push(() -> {
+           MessageConverter.senderServerPlayerUpdate(socket.getOutputStream(), playerInfo, playerIDOfCurrentPlayer);
+        });
+    }
 }

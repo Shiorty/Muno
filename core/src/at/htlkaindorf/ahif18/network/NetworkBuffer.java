@@ -23,6 +23,7 @@ public class NetworkBuffer {
     /**
      * The card that was last played by a player
      */
+    private int currentPlayerID;
     private Card lastPlayedCard;
     private List<Card> cards;
     private List<I_Notifiable> observers;
@@ -64,6 +65,17 @@ public class NetworkBuffer {
         }
 
         return -1;
+    }
+
+    public void setCurrentPlayerID(int playerID)
+    {
+        this.currentPlayerID = playerID;
+        notifyObservers();
+    }
+
+    public int getCurrentPlayerID()
+    {
+        return this.currentPlayerID;
     }
 
     /**

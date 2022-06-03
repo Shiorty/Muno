@@ -197,7 +197,7 @@ public class Server extends Thread{
 
     public void drawCard(int playerID) {
 
-        Player player = findPlayerOfID(playerID);
+        Player currentPlayer = findPlayerOfID(playerID);
 
 //        if(player.getPlayerID() != players.get(currentPlayerIndex).getPlayerID())
 //        {
@@ -206,7 +206,17 @@ public class Server extends Thread{
 
         Card newCard = Card.randomCard();
 
-        player.cards.add(newCard);
-        player.connection.sendDrawnCard(newCard);
+        currentPlayer.cards.add(newCard);
+        currentPlayer.connection.sendDrawnCard(newCard);
+
+        for(Player player : players)
+        {
+            if(player.getPlayerID() == currentPlayer.getPlayerID()){
+                continue;
+            }
+
+            //TODO implement current player stuff
+            player.connection.sendPlayerUpdate(currentPlayer.getPlayerInfo(), -1);
+        }
     }
 }

@@ -106,6 +106,7 @@ public class Client extends Thread{
     }
 
     public void playerJoined(PlayerInfo newPlayer) {
+        networkBuffer.addPlayer(newPlayer);
         System.out.println(message + " New Player Joined: " + newPlayer);
     }
 
@@ -140,5 +141,11 @@ public class Client extends Thread{
 
     public void cardDrawn(Card drawnCard) {
         networkBuffer.addCard(drawnCard);
+    }
+
+    public void playerUpdate(PlayerInfo playerInfo, int currentPlayerID) {
+        networkBuffer.playerUpdate(playerInfo);
+        networkBuffer.setCurrentPlayerID(currentPlayerID);
+
     }
 }
