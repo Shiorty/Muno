@@ -33,7 +33,7 @@ public class MessageConverter {
         //Client wants to draw Card
         DRAW_CARD,
 
-        //Server sends all information about Player (name, cardCount)
+        //Server sends all information about Player (name, cardCount) + who is currently in posession of the ability to lay down cards on the table or otherwise interact with various gameplay elements to progress the game
         PLAYER_UPDATE
     }
 
@@ -75,6 +75,8 @@ public class MessageConverter {
             case DRAW_CARD:
                 connection.drawCard();
                 break;
+
+
         }
     }
 
@@ -112,6 +114,12 @@ public class MessageConverter {
             case DRAW_CARD:
                 Card drawnCard = ByteDealer.receiveCard(inputStream);
                 client.cardDrawn(drawnCard);
+                break;
+
+            case PLAYER_UPDATE:
+                PlayerInfo playerInfo = ByteDealer.receivePlayerInfo(inputStream);
+                int currentPlayerID = ByteDealer.receiveInt(inputStream);
+                client.playerUpdate(playerInfo, currentPlayerID);
                 break;
 
 
@@ -171,5 +179,12 @@ public class MessageConverter {
     {
         sendRequestType(stream, MessageType.DRAW_CARD);
         ByteDealer.sendCard(stream, card);
+    }
+
+    public static void senderServerPlayerUpdate(OutputStream stream, PlayerInfo playerInfo, int playerIDOfCurrentPlayer) throws IOException
+    {
+        sendRequestType(stream, MessageType.PLAYER_UPDATE);
+        ByteDealer.sendPlayerInfo(stream, playerInfo);
+        ByteDealer.sendInt(stream, playerIDOfCurrentPlayer);
     }
 }
