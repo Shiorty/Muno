@@ -181,8 +181,7 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
      */
     public void drawCard()
     {
-        Random r = new Random();
-        cardsInHand.addCard(Card.randomCard());
+        client.drawCard();
     }
 
     public void updateCards() {
@@ -276,17 +275,19 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     }
 
 	public void notifyElement() {
-        List<PlayerInfo> pi = nwb.fetchAllPlayers();
-        System.err.println(pi);
+        List<PlayerInfo> playerInfos = nwb.fetchAllPlayers();
+        System.out.println(playerInfos);
 
         lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
         cardsInHand.setCards(nwb.fetchAllCards());
 
         Gdx.app.postRunnable(() -> {
-            scrollElements = pi
+            scrollElements = playerInfos
                     .stream()
                     .map(PlayerScrollElement::new)
                     .collect(Collectors.toList());
+
+            scrollTable.clear();
 
             scrollElements.forEach(element -> {
                 scrollTable.add(element);

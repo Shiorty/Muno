@@ -84,6 +84,16 @@ public class NetworkBuffer {
         notifyObservers();
     }
 
+    public void removeCard(Card card){
+        this.cards.remove(card);
+        notifyObservers();
+    }
+
+    public void addCard(Card card){
+        this.cards.add(card);
+        notifyObservers();
+    }
+
     public void setLastPlayedCard(Card lastPlayedCard){
         this.lastPlayedCard = lastPlayedCard;
         notifyObservers();

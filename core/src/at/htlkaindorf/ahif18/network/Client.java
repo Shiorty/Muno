@@ -27,6 +27,8 @@ public class Client extends Thread{
     private String message;
     private NetworkBuffer networkBuffer;
 
+    private int playerID;
+
 
     public Client(NetworkBuffer nwb){
         this(nwb, "I <3 cats");
@@ -85,7 +87,9 @@ public class Client extends Thread{
         }
     }
 
-    public void receivedInit(Card lastPlayedCard, List<Card> cards, List<PlayerInfo> otherPlayers) {
+    public void receivedInit(int playerID, Card lastPlayedCard, List<Card> cards, List<PlayerInfo> otherPlayers) {
+        this.playerID = playerID;
+
         networkBuffer.setCards(cards);
         networkBuffer.setLastPlayedCard(lastPlayedCard);
         networkBuffer.setPlayers(otherPlayers);
@@ -111,8 +115,30 @@ public class Client extends Thread{
         });
     }
 
+    public void drawCard(){
+        sendTasks.push(() -> {
+            MessageConverter.sendClientDrawCard(serverConnection.getOutputStream());
+        });
+    }
+
     public void cardPlayed(PlayerInfo player, Card card) {
         networkBuffer.setLastPlayedCard(card);
-        networkBuffer.playerUpdate(player);
+
+        if(this.playerID == player.getPlayerID())
+        {
+            //THATS ME!
+            networkBuffer.removeCard(card);
+        }
+        else
+        {
+            //Thats not me :(
+            System.out.println("Thats not me :(");
+
+            networkBuffer.playerUpdate(player);
+        }
+    }
+
+    public void cardDrawn(Card drawnCard) {
+        networkBuffer.addCard(drawnCard);
     }
 }

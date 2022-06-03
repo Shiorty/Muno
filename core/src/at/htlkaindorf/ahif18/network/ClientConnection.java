@@ -106,7 +106,7 @@ public class ClientConnection extends Thread {
 
     public void sendInitResponse(Card lastPlayedCard, List<PlayerInfo> playerInfos, ArrayList<Card> cards) {
         sendTasks.push(() -> {
-            MessageConverter.sendServerInit(socket.getOutputStream(), lastPlayedCard, playerInfos, cards);
+            MessageConverter.sendServerInit(playerID, socket.getOutputStream(), lastPlayedCard, playerInfos, cards);
         });
     }
 
@@ -119,6 +119,16 @@ public class ClientConnection extends Thread {
     public void receivedTalk(String message){
         sendTasks.push(() -> {
             MessageConverter.sendTalk(socket.getOutputStream(), "yu said: " + message);
+        });
+    }
+
+    public void drawCard() {
+        server.drawCard(this.playerID);
+    }
+
+    public void sendDrawnCard(Card card){
+        sendTasks.push(() -> {
+            MessageConverter.sendServerDrawCard(socket.getOutputStream(), card);
         });
     }
 }

@@ -30,6 +30,9 @@ public class MessageConverter {
         //Send when a player plays a Card
         CARD_PLAYED,
 
+        //Client wants to draw Card
+        DRAW_CARD,
+
         //Server sends all information about Player (name, cardCount)
         PLAYER_UPDATE
     }
@@ -68,6 +71,10 @@ public class MessageConverter {
                 Card cardPlayed = ByteDealer.receiveCard(inputStream);
                 connection.receiveCardPlayed(cardPlayed);
                 break;
+
+            case DRAW_CARD:
+                connection.drawCard();
+                break;
         }
     }
 
@@ -78,10 +85,11 @@ public class MessageConverter {
         switch(type)
         {
             case INIT:
+                int playerID = ByteDealer.receiveInt(inputStream);
                 Card lastPlayedCard = ByteDealer.receiveCard(inputStream);
                 List<Card> cards = ByteDealer.receiveCardList(inputStream);
                 List<PlayerInfo> playerInfos = ByteDealer.receivePlayerInfoList(inputStream);
-                client.receivedInit(lastPlayedCard, cards, playerInfos);
+                client.receivedInit(playerID, lastPlayedCard, cards, playerInfos);
                 break;
 
             case PLAYER_JOINED:
@@ -98,6 +106,14 @@ public class MessageConverter {
                 PlayerInfo player = ByteDealer.receivePlayerInfo(inputStream);
                 Card card = ByteDealer.receiveCard(inputStream);
                 client.cardPlayed(player, card);
+
+                break;
+
+            case DRAW_CARD:
+                Card drawnCard = ByteDealer.receiveCard(inputStream);
+                client.cardDrawn(drawnCard);
+                break;
+
 
         }
     }
@@ -120,6 +136,15 @@ public class MessageConverter {
         ByteDealer.sendCard(stream, card);
     }
 
+    public static void sendClientDrawCard(OutputStream stream) throws IOException
+    {
+        sendRequestType(stream, MessageType.DRAW_CARD);
+    }
+
+
+
+    //--- Server ----//
+
     public static void sendServerCardPlayer(OutputStream stream, PlayerInfo currentPlayer, Card card) throws IOException
     {
         sendRequestType(stream, MessageType.CARD_PLAYED);
@@ -127,9 +152,10 @@ public class MessageConverter {
         ByteDealer.sendCard(stream, card);
     }
 
-    public static void sendServerInit(OutputStream stream, Card lastPlayedCard, List<PlayerInfo> otherPlayers, ArrayList<Card> cards) throws IOException
+    public static void sendServerInit(int playerID, OutputStream stream, Card lastPlayedCard, List<PlayerInfo> otherPlayers, ArrayList<Card> cards) throws IOException
     {
         sendRequestType(stream, MessageType.INIT);
+        ByteDealer.sendInt(stream, playerID);
         ByteDealer.sendCard(stream, lastPlayedCard);
         ByteDealer.sendCardList(stream, cards);
         ByteDealer.sendPlayerInfoList(stream, otherPlayers);
@@ -139,5 +165,11 @@ public class MessageConverter {
     {
         sendRequestType(stream, MessageType.PLAYER_JOINED);
         ByteDealer.sendPlayerInfo(stream, otherPlayers);
+    }
+
+    public static void sendServerDrawCard(OutputStream stream, Card card) throws IOException
+    {
+        sendRequestType(stream, MessageType.DRAW_CARD);
+        ByteDealer.sendCard(stream, card);
     }
 }

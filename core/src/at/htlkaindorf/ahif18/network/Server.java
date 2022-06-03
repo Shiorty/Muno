@@ -184,10 +184,29 @@ public class Server extends Thread{
             return;
         }
 
+
         Player currentPlayer = players.get(playerIndex);
+
+        lastPlayedCard = cardPlayed;
+        currentPlayer.cards.remove(lastPlayedCard);
 
         players.forEach(player -> {
            player.getConnection().sendCardPlayed(currentPlayer.getPlayerInfo(), cardPlayed);
         });
+    }
+
+    public void drawCard(int playerID) {
+
+        Player player = findPlayerOfID(playerID);
+
+//        if(player.getPlayerID() != players.get(currentPlayerIndex).getPlayerID())
+//        {
+//            return;
+//        }
+
+        Card newCard = Card.randomCard();
+
+        player.cards.add(newCard);
+        player.connection.sendDrawnCard(newCard);
     }
 }

@@ -63,7 +63,6 @@ public class CardCollectionActor extends Actor {
     }
 
     public void setCards(List<Card> cardList) {
-        //TODO setCards currently just adds all cards without removing them
         cards.clear();
         for(Card c : cardList) {
             addCard(c);
