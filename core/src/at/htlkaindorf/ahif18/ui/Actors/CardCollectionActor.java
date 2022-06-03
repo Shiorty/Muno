@@ -17,12 +17,16 @@ import java.util.List;
 /**
  * Displays the cards held be the player
  * <br>
- * Last changed: 2022-05-24
+ * Last changed: 2022-06-03
  * @author Jan Mandl; Andreas Kurz
  */
 public class CardCollectionActor extends Actor {
 
-    private class CardInfo {
+    public interface CardClickedListener{
+        void cardClicked(CardCollectionActor collection, int index);
+    }
+
+    private static class CardInfo {
         Card card;
         Rectangle hitBox;
         boolean isFocused;
@@ -37,11 +41,13 @@ public class CardCollectionActor extends Actor {
     private final float CARD_WIDTH = 100;
     private final float CARD_HEIGHT = CARD_WIDTH / 2 * 3;
     private List<CardInfo> cards;
-    private int playedCard;
 
-    public CardCollectionActor() {
+    private CardClickedListener cardClickedListener;
+
+    public CardCollectionActor(CardClickedListener listener) {
+        cardClickedListener = listener;
+
         cards = new ArrayList<>();
-        playedCard = -1;
     }
 
     @Override
@@ -99,12 +105,6 @@ public class CardCollectionActor extends Actor {
         return cards.get(cardIndex).card;
     }
 
-    public int retrievePlayedCard() {
-        int playedCard = this.playedCard;
-        this.playedCard = -1;
-        return playedCard;
-    }
-
     //Get X Offset of the first card
     //Is used to center the cards
     public float getXOffset(){
@@ -130,22 +130,16 @@ public class CardCollectionActor extends Actor {
         }
 
         //Test if any card was clicked
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT))
+        if(cardClickedListener != null && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT))
         {
-            if(playedCard != -1)
-            {
-                System.err.println("Card has not been removed!");
-                return;
-            }
-
             for(int i = 0; i < cards.size(); i++)
             {
                 CardInfo cardInfo = cards.get(i);
 
                 if(cardInfo.hitBox.contains(touchPos.x, touchPos.y))
                 {
-                    System.out.println(cardInfo.card.name());
-                    playedCard = i;
+                    System.out.println(cardInfo.card.name() + " was clicked!");
+                    cardClickedListener.cardClicked(this, i);
                 }
             }
         }

@@ -37,5 +37,9 @@ public class MunoGame extends Game {
 	public void dispose () {
 		batch.dispose();
 		font.dispose();
+
+		if(this.getScreen() != null){
+			this.getScreen().dispose();
+		}
 	}
 }

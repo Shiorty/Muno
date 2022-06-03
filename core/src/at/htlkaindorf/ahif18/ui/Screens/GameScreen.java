@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * @author Jan Mandl; Andreas Kurz
  */
-public class GameScreen implements Screen, I_Notifiable {
+public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.CardClickedListener {
 
     //Framework variables
     private MunoGame game;
@@ -118,7 +118,7 @@ public class GameScreen implements Screen, I_Notifiable {
         });
         stage.addActor(deck);
 
-        cardsInHand = new CardCollectionActor();
+        cardsInHand = new CardCollectionActor(this);
         cardsInHand.setBounds(25, 25, 900, 150);
         stage.addActor(cardsInHand);
 
@@ -207,21 +207,6 @@ public class GameScreen implements Screen, I_Notifiable {
                 playerScrollElement.setDebug(!isDebugModeEnabled)
             );
         }
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F12)){
-            drawCard();
-        }
-
-        int playedCardIndex = cardsInHand.retrievePlayedCard();
-        if(playedCardIndex != -1)
-        {
-            Card playedCard = cardsInHand.getCard(playedCardIndex);
-
-            if(playedCard.hasEqualGroup(lastPlayedCard.getCard())) {
-                lastPlayedCard.setCard(playedCard);
-                cardsInHand.removeCard(playedCardIndex);
-            }
-        }
     }
 
     @Override
@@ -251,6 +236,16 @@ public class GameScreen implements Screen, I_Notifiable {
 
         for(Thread t : threads){
             t.interrupt();
+        }
+    }
+
+    @Override
+    public void cardClicked(CardCollectionActor cardsInHand, int playedCardIndex) {
+        Card playedCard = cardsInHand.getCard(playedCardIndex);
+
+        if(playedCard.hasEqualGroup(lastPlayedCard.getCard())) {
+            lastPlayedCard.setCard(playedCard);
+            cardsInHand.removeCard(playedCardIndex);
         }
     }
 
