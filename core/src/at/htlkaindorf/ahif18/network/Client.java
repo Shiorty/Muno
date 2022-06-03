@@ -85,6 +85,7 @@ public class Client extends Thread{
 
     public void receivedInit(List<Card> cards, List<PlayerInfo> otherPlayers) {
         networkBuffer.setCards(cards);
+        networkBuffer.setPlayers(otherPlayers);
 
         System.out.println("Client: " + Thread.currentThread().getName());
 
