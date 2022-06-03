@@ -128,17 +128,39 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
             nwb = new NetworkBuffer(this);
 
             Server server = new Server();
-            Client client = new Client(nwb);
-            Client client2 = new Client(nwb);
-            this.client = client;
 
-            threads = new Thread[2];
+            Client client = new Client( nwb, "Kevin");
+            Client client2 = new Client(new NetworkBuffer(() -> {}));
+            Client client3 = new Client(new NetworkBuffer(() -> {}));
+            Client client4 = new Client(new NetworkBuffer(() -> {}));
+            Client client5 = new Client(new NetworkBuffer(() -> {}));
+            Client client6 = new Client(new NetworkBuffer(() -> {}));
+            Client client7 = new Client(new NetworkBuffer(() -> {}));
+            Client client8 = new Client(new NetworkBuffer(() -> {}));
+
+            this.client = client;
+          
+            threads = new Thread[9];
+          
             server.start();
             client.start();
-            //client2.start();
+            client2.start();
+            client3.start();
+            client4.start();
+            client5.start();
+            client6.start();
+            client7.start();
+            client8.start();
+			
             threads[0] = server;
             threads[1] = client;
-            //threads[2] = client2;
+            threads[2] = client2;
+            threads[3] = client3;
+            threads[4] = client4;
+            threads[5] = client5;
+            threads[6] = client6;
+            threads[7] = client7;
+            threads[8] = client8;
         }
         //--- End Network Stuff ---//
 

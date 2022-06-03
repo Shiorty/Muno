@@ -32,6 +32,7 @@ public class NetworkBuffer {
         cards = new ArrayList<>();
         observers = new ArrayList<>();
         playerList = new ArrayList<>();
+        /*
         String randomNames[] = new String[] {
                 "john", "me", "01234567", "pizza","diablo", "pasta42", "h4ck3r"
         };
@@ -40,6 +41,7 @@ public class NetworkBuffer {
         for(int i = 0;i < 20; ++i) {
             playerList.add(new PlayerInfo(i, randomNames[r.nextInt(randomNames.length)],r.nextInt(99) + 1));
         }
+        */
 
         lastPlayedCard = Card.CARD_BACK;
         //Debug//
@@ -84,6 +86,11 @@ public class NetworkBuffer {
 
     public void setLastPlayedCard(Card lastPlayedCard){
         this.lastPlayedCard = lastPlayedCard;
+        notifyObservers();
+    }
+  
+    public void setPlayers(List<PlayerInfo> players) {
+        this.playerList = players;
         notifyObservers();
     }
 
