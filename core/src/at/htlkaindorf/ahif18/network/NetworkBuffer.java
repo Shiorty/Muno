@@ -10,7 +10,7 @@ import java.util.*;
  * Networkbuffer is a class that saves(buffers) what comes from the network<br>
  * and provides it to the other parts of the program.<br>
  * <br>
- * Last changed: 2022-05-24
+ * Last changed: 2022-06-03
  * @author Jan Mandl
  */
 public class NetworkBuffer {
@@ -41,10 +41,27 @@ public class NetworkBuffer {
             playerList.add(new PlayerInfo(i, randomNames[r.nextInt(randomNames.length)],r.nextInt(99) + 1));
         }
 
-        lastPlayedCard = Card.R0;
+        lastPlayedCard = Card.CARD_BACK;
         //Debug//
 
         this.observers.add(observer);
+    }
+
+    /**
+     * Find the index of the given player
+     * @param id the id of the player
+     * @return the index of the player; -1 if the ID is not present
+     */
+    private int findIndexOfPlayer(int id){
+        for(int i = 0; i < playerList.size(); i++)
+        {
+            if(playerList.get(i).getPlayerID() == id)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /**
@@ -62,6 +79,11 @@ public class NetworkBuffer {
 
     public void setCards(List<Card> cards) {
         this.cards = cards;
+        notifyObservers();
+    }
+
+    public void setLastPlayedCard(Card lastPlayedCard){
+        this.lastPlayedCard = lastPlayedCard;
         notifyObservers();
     }
 
@@ -94,10 +116,12 @@ public class NetworkBuffer {
     /**
      * Updates the Information on a given Player.
      */
-//    public void playerUpdate(PlayerInfo playerInfo) {
-//      System.err.printf("updatePlayer is not implemented yet");
-//    }
+    public void playerUpdate(PlayerInfo playerInfo) {
+        int index = findIndexOfPlayer(playerInfo.getPlayerID());
+        playerList.set(index, playerInfo);
 
+        notifyObservers();
+    }
 
     public void addObserver(I_Notifiable other) {
         this.observers.add(other);

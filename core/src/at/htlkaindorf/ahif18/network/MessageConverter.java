@@ -7,13 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Provides Static methods to create and receive different Message Types
  *
- * Last Changed: 2022-05-16
+ * Last Changed: 2022-06-03
  * @author Andreas Kurz
  */
 public class MessageConverter {
@@ -63,6 +62,12 @@ public class MessageConverter {
             case TALK:
                 String message = ByteDealer.receiveString(inputStream);
                 connection.receivedTalk(message);
+                break;
+
+            case CARD_PLAYED:
+                Card cardPlayed = ByteDealer.receiveCard(inputStream);
+                connection.receiveCardPlayed(cardPlayed);
+                break;
         }
     }
 
@@ -73,9 +78,10 @@ public class MessageConverter {
         switch(type)
         {
             case INIT:
+                Card lastPlayedCard = ByteDealer.receiveCard(inputStream);
                 List<Card> cards = ByteDealer.receiveCardList(inputStream);
                 List<PlayerInfo> playerInfos = ByteDealer.receivePlayerInfoList(inputStream);
-                client.receivedInit(cards, playerInfos);
+                client.receivedInit(lastPlayedCard, cards, playerInfos);
                 break;
 
             case PLAYER_JOINED:
@@ -86,6 +92,13 @@ public class MessageConverter {
             case TALK:
                 String message = ByteDealer.receiveString(inputStream);
                 client.receivedTalk(message);
+                break;
+
+            case CARD_PLAYED:
+                PlayerInfo player = ByteDealer.receivePlayerInfo(inputStream);
+                Card card = ByteDealer.receiveCard(inputStream);
+                client.cardPlayed(player, card);
+
         }
     }
 
@@ -101,9 +114,23 @@ public class MessageConverter {
         ByteDealer.sendString(stream, name);
     }
 
-    public static void sendServerInit(OutputStream stream, List<PlayerInfo> otherPlayers, ArrayList<Card> cards) throws IOException
+    public static void sendClientCardPlayed(OutputStream stream, Card card) throws IOException
+    {
+        sendRequestType(stream, MessageType.CARD_PLAYED);
+        ByteDealer.sendCard(stream, card);
+    }
+
+    public static void sendServerCardPlayer(OutputStream stream, PlayerInfo currentPlayer, Card card) throws IOException
+    {
+        sendRequestType(stream, MessageType.CARD_PLAYED);
+        ByteDealer.sendPlayerInfo(stream, currentPlayer);
+        ByteDealer.sendCard(stream, card);
+    }
+
+    public static void sendServerInit(OutputStream stream, Card lastPlayedCard, List<PlayerInfo> otherPlayers, ArrayList<Card> cards) throws IOException
     {
         sendRequestType(stream, MessageType.INIT);
+        ByteDealer.sendCard(stream, lastPlayedCard);
         ByteDealer.sendCardList(stream, cards);
         ByteDealer.sendPlayerInfoList(stream, otherPlayers);
     }
