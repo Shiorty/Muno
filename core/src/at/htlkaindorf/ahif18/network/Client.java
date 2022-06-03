@@ -1,6 +1,7 @@
 package at.htlkaindorf.ahif18.network;
 
 import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.data.ConcurrentQueue;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
 import lombok.SneakyThrows;
 
@@ -12,12 +13,14 @@ import java.util.List;
  * Connection from Client to Server
  * Sending and Receiving are handled in seperate threads
  *
- * Last changed: 2022-05-16
+ * Last changed: 2022-06-03
  * @author Andreas Kurz; Jan Mandl
  */
 public class Client extends Thread{
 
     public static final String SERVER_IP = "127.0.0.1";
+
+    private ConcurrentQueue<SendTask> sendTasks = new ConcurrentQueue<>();
 
     private Thread receiveThread;
     private Socket serverConnection;
@@ -63,8 +66,7 @@ public class Client extends Thread{
 
         while(!isInterrupted())
         {
-            MessageConverter.sendTalk(serverConnection.getOutputStream(), message);
-            Thread.sleep(1000);
+            sendTasks.pop().execute();
         }
     }
 
@@ -83,12 +85,14 @@ public class Client extends Thread{
         }
     }
 
-    public void receivedInit(List<Card> cards, List<PlayerInfo> otherPlayers) {
+    public void receivedInit(Card lastPlayedCard, List<Card> cards, List<PlayerInfo> otherPlayers) {
         networkBuffer.setCards(cards);
+        networkBuffer.setLastPlayedCard(lastPlayedCard);
         networkBuffer.setPlayers(otherPlayers);
 
         System.out.println("Client: " + Thread.currentThread().getName());
 
+        System.out.println(message + " " + lastPlayedCard);
         System.out.println(message + " " + cards);
         System.out.println(message + " " + otherPlayers);
     }
@@ -99,5 +103,16 @@ public class Client extends Thread{
 
     public void playerJoined(PlayerInfo newPlayer) {
         System.out.println(message + " New Player Joined: " + newPlayer);
+    }
+
+    public void playCard(Card card) {
+        sendTasks.push(() -> {
+            MessageConverter.sendClientCardPlayed(serverConnection.getOutputStream(), card);
+        });
+    }
+
+    public void cardPlayed(PlayerInfo player, Card card) {
+        networkBuffer.setLastPlayedCard(card);
+        networkBuffer.playerUpdate(player);
     }
 }

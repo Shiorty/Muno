@@ -2,7 +2,6 @@ package at.htlkaindorf.ahif18.network;
 
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
-import com.badlogic.gdx.InputProcessor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Contains static methods to send and receive data from the network
  *
- * Last changed: 2022-05-10
+ * Last changed: 2022-06-03
  * @author Andreas Kurz, Jan Mandl
  */
 public class ByteDealer {
@@ -95,6 +94,15 @@ public class ByteDealer {
         }
     }
 
+    public static void sendCard(OutputStream stream, Card card) throws IOException
+    {
+        sendString(stream, card.name());
+    }
+
+    public static Card receiveCard(InputStream stream) throws IOException
+    {
+        return Card.valueOf(receiveString(stream));
+    }
 
     public static void sendPlayerInfo(OutputStream stream, PlayerInfo playerInfo) throws IOException
     {

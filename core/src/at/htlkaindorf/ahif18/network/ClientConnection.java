@@ -14,7 +14,7 @@ import java.util.Random;
 /**
  * Connection from the Server to a single Client
  *
- * Last changed: 2022-05-16
+ * Last changed: 2022-06-03
  * @author Andreas Kurz
  */
 public class ClientConnection extends Thread {
@@ -26,7 +26,7 @@ public class ClientConnection extends Thread {
 
     private int playerID;
 
-    private ConcurrentQueue<Runnable> sendTasks = new ConcurrentQueue<>();
+    private ConcurrentQueue<SendTask> sendTasks = new ConcurrentQueue<>();
 
     //Client information
     private Socket socket;
@@ -67,8 +67,8 @@ public class ClientConnection extends Thread {
 
         while(!isInterrupted())
         {
-            Runnable r = sendTasks.pop();
-            r.run();
+            SendTask task = sendTasks.pop();
+            task.execute();
         }
     }
 
@@ -92,34 +92,33 @@ public class ClientConnection extends Thread {
         server.playerJoined(playerID, playerName);
     }
 
-    public void sendInitResponse(List<PlayerInfo> playerInfos, ArrayList<Card> cards) {
+    public void receiveCardPlayed(Card cardPlayed)
+    {
+        server.cardPlayed(playerID, cardPlayed);
+    }
+
+    public void sendCardPlayed(PlayerInfo player, Card card)
+    {
         sendTasks.push(() -> {
-            try {
-                MessageConverter.sendServerInit(socket.getOutputStream(), playerInfos, cards);
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            MessageConverter.sendServerCardPlayer(socket.getOutputStream(), player, card);
+        });
+    }
+
+    public void sendInitResponse(Card lastPlayedCard, List<PlayerInfo> playerInfos, ArrayList<Card> cards) {
+        sendTasks.push(() -> {
+            MessageConverter.sendServerInit(socket.getOutputStream(), lastPlayedCard, playerInfos, cards);
         });
     }
 
     public void playerJoined(PlayerInfo playerInfo) {
         sendTasks.push(() -> {
-            try {
-                MessageConverter.sendServerPlayerJoined(socket.getOutputStream(), playerInfo);
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            MessageConverter.sendServerPlayerJoined(socket.getOutputStream(), playerInfo);
         });
     }
 
     public void receivedTalk(String message){
         sendTasks.push(() -> {
-            try {
-                MessageConverter.sendTalk(socket.getOutputStream(), "yu said: " + message);
-            }
-            catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+            MessageConverter.sendTalk(socket.getOutputStream(), "yu said: " + message);
         });
     }
 }

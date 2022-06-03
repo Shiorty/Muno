@@ -2,6 +2,9 @@ package at.htlkaindorf.ahif18.data;
 
 /**
  * Is used to get a sequence of non repeating numbers
+ *
+ * Last changed: 2022-06-03
+ * @author Andreas Kurz
  */
 public class Sequence {
 

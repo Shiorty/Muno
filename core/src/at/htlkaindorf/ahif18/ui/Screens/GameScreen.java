@@ -54,6 +54,7 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     //buffers the network
     private NetworkBuffer nwb;
     private Thread[] threads;
+    private Client client;
 
     public GameScreen(MunoGame game)
     {
@@ -127,6 +128,7 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
             nwb = new NetworkBuffer(this);
 
             Server server = new Server();
+
             Client client = new Client( nwb, "Kevin");
             Client client2 = new Client(new NetworkBuffer(() -> {}));
             Client client3 = new Client(new NetworkBuffer(() -> {}));
@@ -136,7 +138,10 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
             Client client7 = new Client(new NetworkBuffer(() -> {}));
             Client client8 = new Client(new NetworkBuffer(() -> {}));
 
+            this.client = client;
+          
             threads = new Thread[9];
+          
             server.start();
             client.start();
             client2.start();
@@ -177,7 +182,7 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     public void drawCard()
     {
         Random r = new Random();
-        cardsInHand.addCard(Card.values()[r.nextInt(Card.values().length)]);
+        cardsInHand.addCard(Card.randomCard());
     }
 
     public void updateCards() {
@@ -263,8 +268,10 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         Card playedCard = cardsInHand.getCard(playedCardIndex);
 
         if(playedCard.hasEqualGroup(lastPlayedCard.getCard())) {
-            lastPlayedCard.setCard(playedCard);
-            cardsInHand.removeCard(playedCardIndex);
+//            lastPlayedCard.setCard(playedCard);
+//            cardsInHand.removeCard(playedCardIndex);
+
+            client.playCard(playedCard);
         }
     }
 

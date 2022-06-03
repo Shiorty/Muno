@@ -3,13 +3,14 @@ package at.htlkaindorf.ahif18.data;
 import com.badlogic.gdx.graphics.Texture;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Saves all the Card types and the corresponding<br>
  * paths to their textures.
  * <br><br>
- * Last changed: 2022-05-16
- * @author Jan Mandl
+ * Last changed: 2022-06-03
+ * @author Jan Mandl, Kurz Andreas
  */
 public enum Card {
 
@@ -93,5 +94,11 @@ public enum Card {
         }
 
         return false;
+    }
+
+    //TODO make that Card Back cant be gg etted
+    public static Card randomCard(){
+        Random r = new Random();
+        return values()[r.nextInt(values().length)];
     }
 }
