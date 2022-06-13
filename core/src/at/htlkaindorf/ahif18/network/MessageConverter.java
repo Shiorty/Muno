@@ -91,6 +91,7 @@ public class MessageConverter {
                 Card lastPlayedCard = ByteDealer.receiveCard(inputStream);
                 List<Card> cards = ByteDealer.receiveCardList(inputStream);
                 List<PlayerInfo> playerInfos = ByteDealer.receivePlayerInfoList(inputStream);
+                //System.out.println("receiveServerRequest:receiveServerRequest -> ID: " + playerID + ": " + playerInfos);
                 client.receivedInit(playerID, lastPlayedCard, cards, playerInfos);
                 break;
 

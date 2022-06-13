@@ -88,7 +88,7 @@ public class Server extends Thread{
     @SneakyThrows
     @Override
     public void interrupt() {
-        System.out.println("Server Interrupted");
+        //System.out.println("Server Interrupted");
 
         players.stream().map(Player::getConnection).forEach(Thread::interrupt);
         socket.close();
