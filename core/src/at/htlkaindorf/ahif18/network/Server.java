@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import org.w3c.dom.ls.LSOutput;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -61,7 +62,7 @@ public class Server extends Thread{
     private ServerSocket socket;
 
     //Game Information
-    private int currentPlayerIndex;
+    private LoopingSequence currentPlayerIndex;
     private List<Player> players;
     private Sequence playerIDSequence;
     private Card lastPlayedCard;
@@ -69,7 +70,7 @@ public class Server extends Thread{
     public Server()
     {
         players = new ArrayList<>();
-        currentPlayerIndex = -1;
+        currentPlayerIndex = new LoopingSequence(0,0);
         playerIDSequence = new Sequence();
 
         lastPlayedCard = Card.randomCard();
@@ -104,6 +105,11 @@ public class Server extends Thread{
             Socket clientSocket = socket.accept();
 
             int playerID = playerIDSequence.nextValue();
+            currentPlayerIndex = new LoopingSequence(
+                    0,
+                    currentPlayerIndex.getEnd() + 1,
+                    currentPlayerIndex.currentValue() == -1 ? 1 : currentPlayerIndex.currentValue() + 1
+            );
 
             ClientConnection connection = new ClientConnection(this, clientSocket, playerID);
 
@@ -166,11 +172,16 @@ public class Server extends Thread{
             return;
         }
 
-//        if(playerIndex != currentPlayerIndex)
-//        {
-//            //Its not the players turn
-//            return;
-//        }
+        System.out.println(currentPlayerIndex);
+        if(playerIndex != currentPlayerIndex.currentValue())
+        {
+            //Its not the players turn
+            System.out.println("Server:cardPlayed -> Gegnerischer Zug");
+            currentPlayerIndex.nextValue();
+            return;
+        } else {
+            System.out.println("Server:cardPlayed -> Eigener Zug");
+        }
 
         if(!findPlayerOfID(id).cards.contains(cardPlayed))
         {
@@ -184,7 +195,6 @@ public class Server extends Thread{
             return;
         }
 
-
         Player currentPlayer = players.get(playerIndex);
 
         lastPlayedCard = cardPlayed;
@@ -193,6 +203,7 @@ public class Server extends Thread{
         players.forEach(player -> {
            player.getConnection().sendCardPlayed(currentPlayer.getPlayerInfo(), cardPlayed);
         });
+        currentPlayerIndex.nextValue();
     }
 
     public void drawCard(int playerID) {
@@ -216,7 +227,7 @@ public class Server extends Thread{
             }
 
             //TODO implement current player stuff
-            player.connection.sendPlayerUpdate(currentPlayer.getPlayerInfo(), -1);
+            player.connection.sendPlayerUpdate(currentPlayer.getPlayerInfo(), currentPlayerIndex.currentValue());
         }
     }
 }

@@ -147,7 +147,7 @@ public class Client extends Thread{
 
     public void playerUpdate(PlayerInfo playerInfo, int currentPlayerID) {
         networkBuffer.playerUpdate(playerInfo);
-        networkBuffer.setCurrentPlayerID(currentPlayerID);
 
+        networkBuffer.setCurrentPlayerID(currentPlayerID);
     }
 }
