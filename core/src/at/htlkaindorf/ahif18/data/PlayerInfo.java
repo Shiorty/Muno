@@ -8,9 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 /**
- * Saves the informations about the players that are<br>
+ * Saves the information about the players that are<br>
  * needed for the client to display the list of players in<br>
  * the game screen.
+ *
+ * Last changed: 2022-06-13
+ * @author Jan Mandl
  */
 public class PlayerInfo {
     private int playerID;
