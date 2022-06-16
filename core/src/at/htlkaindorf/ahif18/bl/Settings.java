@@ -23,7 +23,8 @@ public class Settings {
      */
     @Getter
     @AllArgsConstructor
-    private enum Key {
+    public enum Key {
+        PLAYER_NAME("I <3 cats"),
         BACKGROUND_COLOR("#8fcdc900");
 
         String defaultValue;

@@ -2,11 +2,12 @@ package at.htlkaindorf.ahif18.ui.Screens;
 
 import at.htlkaindorf.ahif18.MunoGame;
 import at.htlkaindorf.ahif18.bl.Settings;
+import at.htlkaindorf.ahif18.ui.Actors.JoinForm;
 import at.htlkaindorf.ahif18.ui.Actors.MainMenuCardsActor;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
+import java.util.Arrays;
+import java.util.List;
+
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -14,10 +15,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -37,6 +37,8 @@ public class MainMenuScreen implements Screen {
     private Skin skin;
 
     private Table mainTable;
+    private List<TextButton> mainMenuOptions;
+    private JoinForm joinForm;
 
     private Color backgroundColor;
 
@@ -72,28 +74,32 @@ public class MainMenuScreen implements Screen {
         TextButton optionsButton = new TextButton("OPTIONS", skin);
         TextButton exitButton = new TextButton("EXIT", skin);
 
+        mainMenuOptions = Arrays.asList(
+            playButton,
+            hostButton,
+            optionsButton,
+            exitButton
+        );
+
         //Add listeners to buttons
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getScreen().dispose();
-                game.setScreen(new GameScreen(game, false));
+                openJoinForm();
             }
         });
 
         hostButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getScreen().dispose();
-                game.setScreen(new GameScreen(game, true));
+                hostGame();
             }
         });
 
         optionsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getScreen().dispose();
-                game.setScreen(new OptionScreen(game));
+                game.changeScreen(new OptionScreen(game));
             }
         });
 
@@ -122,8 +128,49 @@ public class MainMenuScreen implements Screen {
         mainTable.row();
         mainTable.add(exitButton).height(25).padTop(25).padBottom(75);
 
+        joinForm = new JoinForm(skin);
+        int width = 500, height = 300;
+        joinForm.setBounds(MunoGame.SCREEN_SIZE[0]/2 - 250 , -300,  width, height);
+        Color formColor = new Color(backgroundColor);
+        formColor.sub(0.1f, 0.1f, 0.1f, 0);
+        joinForm.setColor(formColor);
+        joinForm.setZIndex(1000);
+        joinForm.setVisible(true);
+        joinForm.setOnCloseListener(this::closeJoinForm);
+        joinForm.setFormSubmitListener(this::joinGame);
+
         //Add table to stage
         stage.addActor(mainTable);
+        stage.addActor(joinForm);
+    }
+
+    public void openJoinForm(){
+//        joinForm.setVisible(true);
+        joinForm.addAction(Actions.moveTo(MunoGame.SCREEN_SIZE[0]/2 - 250 , MunoGame.SCREEN_SIZE[1]/2 - 150, 0.5f));
+
+
+        //disable all other menu buttons buttons
+        mainMenuOptions.forEach(button -> {
+            button.setTouchable(Touchable.disabled);
+        });
+    }
+
+    public void closeJoinForm(){
+//        joinForm.setVisible(false);
+        joinForm.addAction(Actions.moveTo(MunoGame.SCREEN_SIZE[0]/2 - 250 , -300, 0.5f));
+
+        //re-enable buttons
+        mainMenuOptions.forEach(button -> {
+            button.setTouchable(Touchable.enabled);
+        });
+    }
+
+    public void joinGame(String ip){
+        game.changeScreen(new GameScreen(game, Settings.getInstance().getKeyValue(Settings.Key.PLAYER_NAME), ip));
+    }
+
+    public void hostGame(){
+        game.changeScreen(new GameScreen(game, Settings.getInstance().getKeyValue(Settings.Key.PLAYER_NAME)));
     }
 
     @Override
@@ -132,10 +179,6 @@ public class MainMenuScreen implements Screen {
         viewport.apply();
 
         ScreenUtils.clear(backgroundColor);
-
-//        stage.getBatch().begin();
-//        stage.getBatch().draw(Card.BLUE_0.getTexture(), 0, 0, 1600, 900);
-//        stage.getBatch().end();
 
         stage.act(delta);
         stage.draw();
@@ -150,6 +193,14 @@ public class MainMenuScreen implements Screen {
 
     public void controls(float delta)
     {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
+            openJoinForm();
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
+            closeJoinForm();
+        }
+
         if(Gdx.input.isKeyJustPressed(Input.Keys.F11))
         {
             Graphics.DisplayMode currentMode = Gdx.graphics.getDisplayMode();
@@ -164,7 +215,7 @@ public class MainMenuScreen implements Screen {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
         {
-            mainTable.setDebug(!mainTable.getDebug());
+            stage.setDebugAll(!stage.isDebugAll());
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
         {

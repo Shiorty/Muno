@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +18,7 @@ import java.util.List;
 /**
  * Displays the cards held be the player
  * <br>
- * Last changed: 2022-06-03
+ * Last changed: 2022-06-16
  * @author Jan Mandl; Andreas Kurz
  */
 public class CardCollectionActor extends Actor {
@@ -43,6 +45,10 @@ public class CardCollectionActor extends Actor {
 
     private CardClickedListener cardClickedListener;
 
+    @Getter
+    @Setter
+    private boolean active = true;
+
     public CardCollectionActor(CardClickedListener listener) {
         cardClickedListener = listener;
 
@@ -50,13 +56,17 @@ public class CardCollectionActor extends Actor {
     }
 
     @Override
-    public void draw(Batch batch, float parentAlpha) {
+    public void draw(Batch batch, float parentAlpha){
+        if(!active){
+            batch.setColor(255, 255, 255,0.5f);
+        }
+
         for(CardInfo ca : cards) {
-
             DrawUtils.drawCard(batch, ca.card, ca.hitBox.x + getXOffset(), ca.hitBox.y, ca.hitBox.width);
+        }
 
-            if(ca.isFocused)
-            {
+        for(CardInfo ca : cards) {
+            if(ca.isFocused) {
                 DrawUtils.drawRectangleOutline(batch, Color.YELLOW, ca.hitBox.x + getXOffset(), ca.hitBox.y, ca.hitBox.width, ca.hitBox.height);
             }
         }
@@ -112,7 +122,11 @@ public class CardCollectionActor extends Actor {
 
     @Override
     public void act(float delta) {
+        if(!active){
+            return;
+        }
 
+        //Get touch coordinates
         float x = Gdx.input.getX();
         float y = Gdx.input.getY();
         Vector2 touchPos = new Vector2(x, y);

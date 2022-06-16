@@ -60,6 +60,14 @@ public class OptionScreen implements Screen {
         Label title = new Label("OPTIONS", skin);
         title.setFontScale(2);
 
+        Label lbPlayerName = new Label("Player name: ", skin);
+        TextField tfPlayerName = new TextField("", skin);
+        tfPlayerName.setText(Settings.getInstance().getKeyValue(Settings.Key.PLAYER_NAME));
+        tfPlayerName.setMaxLength(15);
+        tfPlayerName.setTextFieldListener((textField, c) -> {
+            Settings.getInstance().saveValue(Settings.Key.PLAYER_NAME, textField.getText());
+        });
+
         Label lbBackgroundColor = new Label("Background Color: ", skin);
         TextField tfColorInput = new TextField("", skin);
         tfColorInput.setText("#" + backgroundColor.toString());
@@ -102,6 +110,9 @@ public class OptionScreen implements Screen {
         tableSettings.columnDefaults(0).align(Align.left).width(450);
         tableSettings.columnDefaults(1).align(Align.left).width(200).expandX();
 
+        tableSettings.add(lbPlayerName);
+        tableSettings.add(tfPlayerName).width(400);
+        tableSettings.row();
         tableSettings.add(lbBackgroundColor);
         tableSettings.add(tfColorInput);
         tableSettings.row();

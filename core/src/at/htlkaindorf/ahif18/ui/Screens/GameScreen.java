@@ -59,19 +59,32 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     private List<Thread> threads;
     private Client client;
 
-    public GameScreen(MunoGame game, boolean isHost)
+    public GameScreen(MunoGame game, String playerName)
+    {
+        this(game, playerName, null);
+    }
+
+    public GameScreen(MunoGame game, String playerName, String hostIP)
     {
         this.game = game;
-        skin = new Skin(Gdx.files.internal("ui/vhs-new/vhs_new.json"));
-        viewport = new FitViewport(MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]);
-        stage = new Stage(viewport);
-        //stage.setDebugAll(true);
 
+        //load background color from settings
         backgroundColor = Settings.getInstance().getBackgroundColor();
 
+        //load game skin
+        skin = new Skin(Gdx.files.internal("ui/vhs-new/vhs_new.json"));
+
+        //create new stage
+        viewport = new FitViewport(MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]);
+        stage = new Stage(viewport);
+
+        //set the stage as the input processor
         Gdx.input.setInputProcessor(stage);
 
+        //setup gui components
         menuButtons = new TextButton[2];
+
+        //create Menu button
         menuButtons[0] = new TextButton("Menu", skin.get("border", TextButton.TextButtonStyle.class));
         menuButtons[0].setSize(175, 50);
         menuButtons[0].setPosition(20, 825);//y position is desired position - height
@@ -82,6 +95,8 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
             }
         });
         stage.addActor(menuButtons[0]);
+
+        //create chat button
         menuButtons[1] = new TextButton("Chat", skin.get("border", TextButton.TextButtonStyle.class));
         menuButtons[1].setSize(175, 50);
         menuButtons[1].setPosition(225, 825);//y position is desired position - height
@@ -93,6 +108,7 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         });
         stage.addActor(menuButtons[1]);
 
+        //setup the scrollbar
         scrollTable = new Table();
         scrollTable.columnDefaults(0).padTop(10).padBottom(10).width(600).height(80).expandX();
         ScrollPane scrollPane = new ScrollPane(scrollTable, skin);
@@ -100,7 +116,6 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         scrollPane.setHeight(900);
         scrollPane.setWidth(650);
         scrollPane.setFadeScrollBars(false);
-
         stage.addActor(scrollPane);
 
         //Make the scrollpane scrollable without having to click on it first
@@ -126,16 +141,17 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         cardsInHand.setBounds(25, 25, 900, 150);
         stage.addActor(cardsInHand);
 
+
         //--- Network Stuff ---//
         {
 
             threads = new ArrayList<>();
 
             nwb = new NetworkBuffer(this);
-            client = new Client( nwb, "keivn");
+            client = new Client( nwb, playerName, hostIP);
             threads.add(client);
 
-            if(isHost)
+            if(hostIP == null)
             {
                 Server server = new Server();
                 threads.add(server);
@@ -144,13 +160,6 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
             threads.forEach(Thread::start);
         }
         //--- End Network Stuff ---//
-
-        //TODO Check what validate even does
-        scrollPane.validate();
-
-        //is used to set the scroll percentage
-//        scrollPane.setScrollPercentY(20f / Card.values().length);
-//        scrollPane.updateVisualScroll();
     }
 
     public void returnToMenu(){
@@ -162,15 +171,11 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     }
 
     /**
-     * Adds Random card to Hand
+     * Sends draw card request to server
      */
     public void drawCard()
     {
         client.drawCard();
-    }
-
-    public void updateCards() {
-        cardsInHand.setCards(nwb.fetchAllCards());
     }
 
 
@@ -182,20 +187,17 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     @Override
     public void render(float delta) {
         ScreenUtils.clear(backgroundColor);
+
         stage.act(delta);
-
         controls(delta);
-
-        /*
-        Batch b = stage.getBatch();
-        b.begin();
-        b.draw(Card.RED_3.getTexture(), 20, 20, 100, 100);
-        b.end();
-        */
 
         stage.draw();
     }
 
+    /**
+     * Tests if any hotkey was pressed
+     * @param delta time elapsed since the last frame (in ms)
+     */
     public void controls(float delta)
     {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -251,29 +253,25 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     public void cardClicked(CardCollectionActor cardsInHand, int playedCardIndex) {
         Card playedCard = cardsInHand.getCard(playedCardIndex);
 
-        if(playedCard.hasEqualGroup(lastPlayedCard.getCard())) {
-//            lastPlayedCard.setCard(playedCard);
-//            cardsInHand.removeCard(playedCardIndex);
-
+        //test if card can be played
+        if(playedCard.hasEqualGroup(lastPlayedCard.getCard()))
+        {
+            //send play card request
             client.playCard(playedCard);
         }
     }
 
+    @Override
 	public void notifyElement() {
-        List<PlayerInfo> playerInfos = nwb.fetchAllPlayers();
-        //System.out.println(playerInfos);
-
-        lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
-
-        //TODO darf nicht! im network thread gemacht werden
-        //TODO in der methode wird die Arraylist modifiziert
-        //TODO wenn der GUI Thread gleichzeitig auf die Liste zugreift gibt es eine exception!
-        cardsInHand.setCards(nwb.fetchAllCards());
-
         Gdx.app.postRunnable(() -> {
-            stage.setDebugAll(nwb.getCurrentPlayerID() == client.getPlayerID());
+            lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
+            cardsInHand.setCards(nwb.fetchAllCards());
 
-            scrollElements = playerInfos
+            boolean myTurn = nwb.getCurrentPlayerID() == client.getPlayerID();
+            cardsInHand.setActive(myTurn);
+            deck.setActive(myTurn);
+
+            scrollElements = nwb.fetchAllPlayers()
                     .stream()
                     .map(PlayerScrollElement::new)
                     .collect(Collectors.toList());

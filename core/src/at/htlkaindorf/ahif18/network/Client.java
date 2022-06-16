@@ -19,13 +19,15 @@ import java.util.List;
  */
 public class Client extends Thread implements MessageConverter.ServerMessageListener {
 
-    public static final String SERVER_IP = "127.0.0.1";
+    public static final String DEFAULT_IP = "127.0.0.1";
 
     private ConcurrentQueue<SendTask> sendTasks = new ConcurrentQueue<>();
 
+    private String name;
+    private String hostIP;
+
     private Thread receiveThread;
     private Socket serverConnection;
-    private String message;
     private NetworkBuffer networkBuffer;
 
     @Getter
@@ -33,13 +35,15 @@ public class Client extends Thread implements MessageConverter.ServerMessageList
 
 
     public Client(NetworkBuffer nwb){
-        this(nwb, "I <3 cats");
+        this(nwb, "I <3 cats", DEFAULT_IP);
     }
 
-    public Client(NetworkBuffer nwb, String message){
+    public Client(NetworkBuffer nwb, String name, String hostIP){
         networkBuffer = nwb;
-        Thread.currentThread().setName(message);
-        this.message = message;
+
+        Thread.currentThread().setName(name);
+        this.name = name;
+        this.hostIP = hostIP == null ? DEFAULT_IP : hostIP;
     }
 
     @Override
@@ -64,11 +68,11 @@ public class Client extends Thread implements MessageConverter.ServerMessageList
 
     public void startClient() throws Exception
     {
-        serverConnection = new Socket(SERVER_IP, Server.PORT);
+        serverConnection = new Socket(hostIP, Server.PORT);
         receiveThread = new Thread(this::receiveTask);
         receiveThread.start();
 
-        MessageConverter.sendClientInit(serverConnection.getOutputStream(), message);
+        MessageConverter.sendClientInit(serverConnection.getOutputStream(), name);
 
         while(!isInterrupted())
         {
