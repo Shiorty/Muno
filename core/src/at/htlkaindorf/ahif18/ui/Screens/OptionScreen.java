@@ -17,6 +17,12 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+/**
+ * Screen which lets users change their preferences
+ *
+ * Last changed: 2022-06-16
+ * @author Andreas Kurz
+ */
 public class OptionScreen implements Screen {
 
     private MunoGame game;
@@ -67,8 +73,16 @@ public class OptionScreen implements Screen {
         CheckBox cbCheckboxTest = new CheckBox("", skin);
         cbCheckboxTest.toggle();
 
-        TextButton backButton = new TextButton("Back", skin);
-        backButton.addListener(new ClickListener(){
+        TextButton btnReset = new TextButton("Reset", skin);
+        btnReset.addListener(new ClickListener(){
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                resetSettings();
+            }
+        });
+
+        TextButton btnBack = new TextButton("Back", skin);
+        btnBack.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 returnToMenu();
@@ -97,7 +111,9 @@ public class OptionScreen implements Screen {
 
         tableMain.add(tableSettings).align(Align.left).padTop(50).width(MunoGame.SCREEN_SIZE[0]);
         tableMain.row();
-        tableMain.add(backButton).padBottom(50).expandY().align(Align.bottom);
+        tableMain.add(btnReset).expandY().align(Align.bottom);
+        tableMain.row();
+        tableMain.add(btnBack).padTop(20).padBottom(50);
         //--- Finish Main Table
 
         stage.addActor(tableMain);
@@ -106,6 +122,11 @@ public class OptionScreen implements Screen {
 
     public void returnToMenu(){
         game.changeScreen(new MainMenuScreen(game));
+    }
+
+    public void resetSettings(){
+        Settings.getInstance().restoreDefaults();
+        game.changeScreen(new OptionScreen(game));
     }
 
     @Override
