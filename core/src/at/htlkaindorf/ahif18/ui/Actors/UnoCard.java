@@ -4,7 +4,7 @@ import at.htlkaindorf.ahif18.data.Card;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
-import static at.htlkaindorf.ahif18.ui.DrawUtils.*;
+import static at.htlkaindorf.ahif18.ui.DrawUtils.drawCard;
 
 /**
  * GUI class that is used to represent single Uno cards.

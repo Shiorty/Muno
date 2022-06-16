@@ -1,10 +1,8 @@
 package at.htlkaindorf.ahif18.ui.Screens;
 
-import at.htlkaindorf.ahif18.network.Client;
-import at.htlkaindorf.ahif18.network.Server;
-import at.htlkaindorf.ahif18.ui.Actors.MainMenuCardsActor;
 import at.htlkaindorf.ahif18.MunoGame;
 import at.htlkaindorf.ahif18.bl.Settings;
+import at.htlkaindorf.ahif18.ui.Actors.MainMenuCardsActor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;

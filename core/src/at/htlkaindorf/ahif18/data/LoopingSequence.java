@@ -1,7 +1,5 @@
 package at.htlkaindorf.ahif18.data;
 
-import com.sun.media.sound.SF2InstrumentRegion;
-
 /**
  * Is used to get a sequence of repeating numbers.
  *

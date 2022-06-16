@@ -1,11 +1,13 @@
 package at.htlkaindorf.ahif18.network;
 
-import at.htlkaindorf.ahif18.data.*;
+import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.data.LoopingSequence;
+import at.htlkaindorf.ahif18.data.PlayerInfo;
+import at.htlkaindorf.ahif18.data.Sequence;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.w3c.dom.ls.LSOutput;
 
 import java.net.ServerSocket;
 import java.net.Socket;

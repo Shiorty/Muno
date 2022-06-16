@@ -1,13 +1,10 @@
 package at.htlkaindorf.ahif18.data;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Spliterator;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
 
 public class ConcurrentQueue<T>{
 

@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import java.util.Random;
 
-import static at.htlkaindorf.ahif18.ui.DrawUtils.*;
+import static at.htlkaindorf.ahif18.ui.DrawUtils.drawCardCentered;
 
 /**
  * Displays multiple cards<br>

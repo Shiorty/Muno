@@ -2,7 +2,6 @@ package at.htlkaindorf.ahif18.data;
 
 import com.badlogic.gdx.graphics.Texture;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 /**

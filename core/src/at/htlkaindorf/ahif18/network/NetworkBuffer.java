@@ -4,7 +4,8 @@ import at.htlkaindorf.ahif18.bl.I_Notifiable;
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Networkbuffer is a class that saves(buffers) what comes from the network<br>
