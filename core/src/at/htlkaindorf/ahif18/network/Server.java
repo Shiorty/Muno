@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * Server Thread handling new Clients
  * When a new client connects a new ClientConnection Thread is opened
  *
- * Last changed: 2022-06-03
+ * Last changed: 2022-06-16
  * @author Andreas Kurz; Jan Mandl
  */
 public class Server extends Thread{
@@ -107,11 +107,6 @@ public class Server extends Thread{
             Socket clientSocket = socket.accept();
 
             int playerID = playerIDSequence.nextValue();
-            currentPlayerIndex = new LoopingSequence(
-                    0,
-                    currentPlayerIndex.getEnd() + 1,
-                    currentPlayerIndex.currentValue() == -1 ? 1 : currentPlayerIndex.currentValue() + 1
-            );
 
             ClientConnection connection = new ClientConnection(this, clientSocket, playerID);
 
@@ -120,8 +115,29 @@ public class Server extends Thread{
                 playerID
             ));
 
+            reconfigureCurrentPlayerSequence();
+
             connection.start();
         }
+    }
+
+    private void reconfigureCurrentPlayerSequence()
+    {
+        int currentIndex = currentPlayerIndex.currentValue();
+
+        if(currentIndex == -1){
+            currentIndex = 0;
+        }
+
+        if(currentIndex >= players.size()){
+            currentIndex = 0;
+        }
+
+        currentPlayerIndex = new LoopingSequence(
+                0,
+                players.size(),
+                currentIndex
+        );
     }
 
     private Player findPlayerOfID(int id){
@@ -144,6 +160,10 @@ public class Server extends Thread{
 
     // --- Gameplay --- //
 
+    public int getCurrentPlayerID(){
+        return players.get(currentPlayerIndex.currentValue()).getPlayerID();
+    }
+
     public void playerJoined(int id, String name){
         Player newPlayer = findPlayerOfID(id);
         newPlayer.setName(name);
@@ -160,8 +180,24 @@ public class Server extends Thread{
                 continue;
             }
 
-            player.getConnection().playerJoined(newPlayer.getPlayerInfo());
+            player.getConnection().sendPlayerJoined(newPlayer.getPlayerInfo());
         }
+    }
+
+    public void playerLeft(int id) {
+
+        Player playerThatWantsToLeave = findPlayerOfID(id);
+
+        players.remove(findIndexOfPlayer(id));
+
+        reconfigureCurrentPlayerSequence();
+
+        playerThatWantsToLeave.getConnection().interrupt();
+
+        players.forEach(player -> {
+            player.getConnection().sendPlayerLeft(playerThatWantsToLeave.getPlayerInfo());
+        });
+
     }
 
     public void cardPlayed(int id, Card cardPlayed) {
@@ -174,15 +210,11 @@ public class Server extends Thread{
             return;
         }
 
-        System.out.println(currentPlayerIndex);
-        if(playerIndex != currentPlayerIndex.currentValue())
+        if(id != getCurrentPlayerID())
         {
             //Its not the players turn
-            System.out.println("Server:cardPlayed -> Gegnerischer Zug");
-            currentPlayerIndex.nextValue();
+            System.out.println("Its not the players turn | Current Player is: " + getCurrentPlayerID() + " | your id is: " + id);
             return;
-        } else {
-            System.out.println("Server:cardPlayed -> Eigener Zug");
         }
 
         if(!findPlayerOfID(id).cards.contains(cardPlayed))
@@ -197,26 +229,36 @@ public class Server extends Thread{
             return;
         }
 
+        //Get information about the player
         Player currentPlayer = players.get(playerIndex);
 
+        //play the card
         lastPlayedCard = cardPlayed;
         currentPlayer.cards.remove(lastPlayedCard);
 
+        //notify all players about the card play
         players.forEach(player -> {
            player.getConnection().sendCardPlayed(currentPlayer.getPlayerInfo(), cardPlayed);
         });
+
+        //tell all players who the new current player is
         currentPlayerIndex.nextValue();
+        players.forEach(player -> {
+            player.getConnection().sendCurrentPlayerUpdate(getCurrentPlayerID());
+        });
     }
 
     public void drawCard(int playerID) {
 
         Player currentPlayer = findPlayerOfID(playerID);
 
-//        if(player.getPlayerID() != players.get(currentPlayerIndex).getPlayerID())
-//        {
-//            return;
-//        }
+        if(currentPlayer.getPlayerID() != getCurrentPlayerID())
+        {
+            //its not the players turn
+            return;
+        }
 
+        //Get a random card
         Card newCard = Card.randomCard();
 
         currentPlayer.cards.add(newCard);
@@ -228,8 +270,12 @@ public class Server extends Thread{
                 continue;
             }
 
-            //TODO implement current player stuff
-            player.connection.sendPlayerUpdate(currentPlayer.getPlayerInfo(), currentPlayerIndex.currentValue());
+            player.connection.sendPlayerUpdate(currentPlayer.getPlayerInfo());
         }
+
+        currentPlayerIndex.nextValue();
+        players.forEach(player -> {
+            player.getConnection().sendCurrentPlayerUpdate(getCurrentPlayerID());
+        });
     }
 }

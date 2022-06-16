@@ -13,10 +13,10 @@ import java.util.List;
 /**
  * Connection from the Server to a single Client
  *
- * Last changed: 2022-06-03
+ * Last changed: 2022-06-16
  * @author Andreas Kurz
  */
-public class ClientConnection extends Thread {
+public class ClientConnection extends Thread implements MessageConverter.ClientMessageListener{
 
     private Thread receiveThread;
 
@@ -39,35 +39,34 @@ public class ClientConnection extends Thread {
 
     @Override
     public void run() {
-        try {
-            startConnection();
-        }
-        catch (Exception exception) {
-            exception.printStackTrace();
-        }
+        startConnection();
     }
 
     @SneakyThrows
     @Override
     public void interrupt() {
-        //System.out.println("Connection interrupted");
-
-        //System.out.println("Receive Thread interrupted");
         receiveThread.interrupt();
 
         socket.close();
         super.interrupt();
     }
 
-    public void startConnection() throws Exception
+    public void startConnection()
     {
         receiveThread = new Thread(this::receiveTask);
         receiveThread.start();
 
         while(!isInterrupted())
         {
-            SendTask task = sendTasks.pop();
-            task.execute();
+            try
+            {
+                SendTask task = sendTasks.pop();
+                task.execute();
+            }
+            catch (InterruptedException | IOException e) {
+                clientLeft();
+                return;
+            }
         }
     }
 
@@ -80,22 +79,49 @@ public class ClientConnection extends Thread {
                 MessageConverter.receiveClientRequest(this, this.socket.getInputStream());
             }
         }
-        catch(IOException ioException)
+        catch(Exception ioException)
         {
             ioException.printStackTrace();
+            clientLeft();
         }
     }
 
+    public void clientLeft() {
+        System.out.println("Client dead");
+        server.playerLeft(playerID);
+    }
+
+    @Override
     public void receiveInit(String playerName)
     {
         server.playerJoined(playerID, playerName);
     }
 
+    @Override
+    public void receiveEnd() {
+        clientLeft();
+    }
+
+    @Override
+    public void receiveTalk(String message) {
+        sendTasks.push(() -> {
+            MessageConverter.sendTalk(socket.getOutputStream(), "yu said: " + message);
+        });
+    }
+
+    @Override
     public void receiveCardPlayed(Card cardPlayed)
     {
         server.cardPlayed(playerID, cardPlayed);
     }
 
+    @Override
+    public void receiveDrawCard() {
+        server.drawCard(this.playerID);
+    }
+
+
+    //---- Send Methods ----//
     public void sendCardPlayed(PlayerInfo player, Card card)
     {
         sendTasks.push(() -> {
@@ -110,20 +136,16 @@ public class ClientConnection extends Thread {
         });
     }
 
-    public void playerJoined(PlayerInfo playerInfo) {
+    public void sendPlayerJoined(PlayerInfo playerInfo) {
         sendTasks.push(() -> {
             MessageConverter.sendServerPlayerJoined(socket.getOutputStream(), playerInfo);
         });
     }
 
-    public void receivedTalk(String message){
+    public void sendPlayerLeft(PlayerInfo playerInfo){
         sendTasks.push(() -> {
-            MessageConverter.sendTalk(socket.getOutputStream(), "yu said: " + message);
+            MessageConverter.sendServerPlayerLeft(socket.getOutputStream(), playerInfo);
         });
-    }
-
-    public void drawCard() {
-        server.drawCard(this.playerID);
     }
 
     public void sendDrawnCard(Card card){
@@ -132,9 +154,15 @@ public class ClientConnection extends Thread {
         });
     }
 
-    public void sendPlayerUpdate(PlayerInfo playerInfo, int playerIDOfCurrentPlayer){
+    public void sendPlayerUpdate(PlayerInfo playerInfo){
         sendTasks.push(() -> {
-           MessageConverter.senderServerPlayerUpdate(socket.getOutputStream(), playerInfo, playerIDOfCurrentPlayer);
+           MessageConverter.senderServerPlayerUpdate(socket.getOutputStream(), playerInfo);
+        });
+    }
+
+    public void sendCurrentPlayerUpdate(int currentValue) {
+        sendTasks.push(() -> {
+            MessageConverter.sendServerCurrentPlayerUpdate(socket.getOutputStream(), currentValue);
         });
     }
 }

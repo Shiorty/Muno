@@ -12,13 +12,14 @@ import java.util.List;
 /**
  * Provides Static methods to create and receive different Message Types
  *
- * Last Changed: 2022-06-03
- * @author Andreas Kurz
+ * Last Changed: 2022-06-16
+ * @author Andreas Kurz, Jan Mandl
  */
 public class MessageConverter {
 
     public enum MessageType {
         INIT,
+        END,
 
         //Server informs Clients of other client disconnect
         PLAYER_JOINED,
@@ -33,8 +34,10 @@ public class MessageConverter {
         //Client wants to draw Card
         DRAW_CARD,
 
-        //Server sends all information about Player (name, cardCount) + who is currently in posession of the ability to lay down cards on the table or otherwise interact with various gameplay elements to progress the game
-        PLAYER_UPDATE
+        //Server sends all information about Player (name, cardCount)
+        PLAYER_UPDATE,
+
+        CURRENT_PLAYER_UPDATE //contains information about who is currently in possession of the ability to lay down cards on the table or otherwise interact with various gameplay elements to progress the game
     }
 
     private static void sendRequestType(OutputStream outputStream, MessageType type) throws IOException
@@ -49,9 +52,15 @@ public class MessageConverter {
     }
 
 
+    public interface ClientMessageListener{
+        void receiveInit(String playerName);
+        void receiveEnd();
+        void receiveTalk(String message);
+        void receiveCardPlayed(Card cardPlayed);
+        void receiveDrawCard();
+    }
 
-
-    public static void receiveClientRequest(ClientConnection connection, InputStream inputStream) throws IOException
+    public static void receiveClientRequest(ClientMessageListener listener, InputStream inputStream) throws IOException
     {
         MessageType type = getRequestType(inputStream);
 
@@ -59,28 +68,41 @@ public class MessageConverter {
         {
             case INIT:
                 String playerName = ByteDealer.receiveString(inputStream);
-                connection.receiveInit(playerName);
+                listener.receiveInit(playerName);
+                break;
+
+            case END:
+                listener.receiveEnd();
                 break;
 
             case TALK:
                 String message = ByteDealer.receiveString(inputStream);
-                connection.receivedTalk(message);
+                listener.receiveTalk(message);
                 break;
 
             case CARD_PLAYED:
                 Card cardPlayed = ByteDealer.receiveCard(inputStream);
-                connection.receiveCardPlayed(cardPlayed);
+                listener.receiveCardPlayed(cardPlayed);
                 break;
 
             case DRAW_CARD:
-                connection.drawCard();
+                listener.receiveDrawCard();
                 break;
-
-
         }
     }
 
-    public static void receiveServerRequest(Client client, InputStream inputStream) throws IOException
+    public interface ServerMessageListener{
+        void receiveInit(int playerID, Card lastPlayedCard, List<Card> cards, List<PlayerInfo> playerInfos);
+        void receivePlayerJoined(PlayerInfo newPlayer);
+        void receivePlayerLeft(PlayerInfo deadPlayer);
+        void receiveTalk(String message);
+        void receiveCardPlayed(PlayerInfo player, Card card);
+        void receiveCardDrawn(Card card);
+        void receivePlayerUpdate(PlayerInfo playerInfo);
+        void receiveCurrentPlayerUpdate(int currentPlayer);
+    }
+
+    public static void receiveServerRequest(ServerMessageListener listener, InputStream inputStream) throws IOException
     {
         MessageType type = getRequestType(inputStream);
 
@@ -91,39 +113,44 @@ public class MessageConverter {
                 Card lastPlayedCard = ByteDealer.receiveCard(inputStream);
                 List<Card> cards = ByteDealer.receiveCardList(inputStream);
                 List<PlayerInfo> playerInfos = ByteDealer.receivePlayerInfoList(inputStream);
-                //System.out.println("receiveServerRequest:receiveServerRequest -> ID: " + playerID + ": " + playerInfos);
-                client.receivedInit(playerID, lastPlayedCard, cards, playerInfos);
+                listener.receiveInit(playerID, lastPlayedCard, cards, playerInfos);
                 break;
 
             case PLAYER_JOINED:
                 PlayerInfo newPlayer = ByteDealer.receivePlayerInfo(inputStream);
-                client.playerJoined(newPlayer);
+                listener.receivePlayerJoined(newPlayer);
+                break;
+
+            case PLAYER_LEAVE:
+                PlayerInfo deadPlayer = ByteDealer.receivePlayerInfo(inputStream);
+                listener.receivePlayerLeft(deadPlayer);
                 break;
 
             case TALK:
                 String message = ByteDealer.receiveString(inputStream);
-                client.receivedTalk(message);
+                listener.receiveTalk(message);
                 break;
 
             case CARD_PLAYED:
                 PlayerInfo player = ByteDealer.receivePlayerInfo(inputStream);
                 Card card = ByteDealer.receiveCard(inputStream);
-                client.cardPlayed(player, card);
-
+                listener.receiveCardPlayed(player, card);
                 break;
 
             case DRAW_CARD:
                 Card drawnCard = ByteDealer.receiveCard(inputStream);
-                client.cardDrawn(drawnCard);
+                listener.receiveCardDrawn(drawnCard);
                 break;
 
             case PLAYER_UPDATE:
                 PlayerInfo playerInfo = ByteDealer.receivePlayerInfo(inputStream);
-                int currentPlayerID = ByteDealer.receiveInt(inputStream);
-                client.playerUpdate(playerInfo, currentPlayerID);
+                listener.receivePlayerUpdate(playerInfo);
                 break;
 
-
+            case CURRENT_PLAYER_UPDATE:
+                int currentPlayer = ByteDealer.receiveInt(inputStream);
+                listener.receiveCurrentPlayerUpdate(currentPlayer);
+                break;
         }
     }
 
@@ -133,10 +160,16 @@ public class MessageConverter {
         ByteDealer.sendString(stream, message);
     }
 
+
     public static void sendClientInit(OutputStream stream, String name) throws IOException
     {
         sendRequestType(stream, MessageType.INIT);
         ByteDealer.sendString(stream, name);
+    }
+
+    public static void sendClientEnd(OutputStream stream) throws IOException
+    {
+        sendRequestType(stream, MessageType.END);
     }
 
     public static void sendClientCardPlayed(OutputStream stream, Card card) throws IOException
@@ -153,7 +186,6 @@ public class MessageConverter {
 
 
     //--- Server ----//
-
     public static void sendServerCardPlayer(OutputStream stream, PlayerInfo currentPlayer, Card card) throws IOException
     {
         sendRequestType(stream, MessageType.CARD_PLAYED);
@@ -176,16 +208,27 @@ public class MessageConverter {
         ByteDealer.sendPlayerInfo(stream, otherPlayers);
     }
 
+    public static void sendServerPlayerLeft(OutputStream stream, PlayerInfo player) throws IOException
+    {
+        sendRequestType(stream, MessageType.PLAYER_LEAVE);
+        ByteDealer.sendPlayerInfo(stream, player);
+    }
+
     public static void sendServerDrawCard(OutputStream stream, Card card) throws IOException
     {
         sendRequestType(stream, MessageType.DRAW_CARD);
         ByteDealer.sendCard(stream, card);
     }
 
-    public static void senderServerPlayerUpdate(OutputStream stream, PlayerInfo playerInfo, int playerIDOfCurrentPlayer) throws IOException
+    public static void senderServerPlayerUpdate(OutputStream stream, PlayerInfo playerInfo) throws IOException
     {
         sendRequestType(stream, MessageType.PLAYER_UPDATE);
         ByteDealer.sendPlayerInfo(stream, playerInfo);
-        ByteDealer.sendInt(stream, playerIDOfCurrentPlayer);
+    }
+
+    public static void sendServerCurrentPlayerUpdate(OutputStream stream, int currentPlayerID) throws IOException
+    {
+        sendRequestType(stream, MessageType.CURRENT_PLAYER_UPDATE);
+        ByteDealer.sendInt(stream, currentPlayerID);
     }
 }

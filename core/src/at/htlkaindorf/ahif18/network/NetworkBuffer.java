@@ -11,7 +11,7 @@ import java.util.List;
  * Networkbuffer is a class that saves(buffers) what comes from the network<br>
  * and provides it to the other parts of the program.<br>
  * <br>
- * Last changed: 2022-06-03
+ * Last changed: 2022-06-16
  * @author Jan Mandl
  */
 public class NetworkBuffer {
@@ -135,7 +135,8 @@ public class NetworkBuffer {
      * @param playerInfo the player that should be removed from the session
      */
     public void removePlayer(PlayerInfo playerInfo) {
-        System.err.printf("removePlayer is not implemented yet");
+        playerList.remove(playerInfo);
+        notifyObservers();
     }
 
     /**

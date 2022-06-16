@@ -26,6 +26,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,10 +56,10 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     //Other Variables
     //buffers the network
     private NetworkBuffer nwb;
-    private Thread[] threads;
+    private List<Thread> threads;
     private Client client;
 
-    public GameScreen(MunoGame game)
+    public GameScreen(MunoGame game, boolean isHost)
     {
         this.game = game;
         skin = new Skin(Gdx.files.internal("ui/vhs-new/vhs_new.json"));
@@ -127,46 +128,20 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
 
         //--- Network Stuff ---//
         {
+
+            threads = new ArrayList<>();
+
             nwb = new NetworkBuffer(this);
+            client = new Client( nwb, "keivn");
+            threads.add(client);
 
-            Server server = new Server();
-            server.start();
+            if(isHost)
+            {
+                Server server = new Server();
+                threads.add(server);
+            }
 
-            Client client = new Client( nwb, "keivn");
-            Client client2 = new Client(new NetworkBuffer(() -> {}), "flyingCat");
-            Client client3 = new Client(new NetworkBuffer(() -> {}), "tet");
-//            Client client4 = new Client(new NetworkBuffer(() -> {}));
-//            Client client5 = new Client(new NetworkBuffer(() -> {}));
-//            Client client6 = new Client(new NetworkBuffer(() -> {}));
-//            Client client7 = new Client(new NetworkBuffer(() -> {}));
-//            Client client8 = new Client(new NetworkBuffer(() -> {}));
-
-            this.client = client;
-            client.start();
-          
-            threads = new Thread[4];
-            threads[0] = client;
-            threads[1] = server;
-            threads[2] = client2;
-            threads[3] = client3;
-
-            client2.start();
-            client3.start();
-//            client4.start();
-//            client5.start();
-//            client6.start();
-//            client7.start();
-//            client8.start();
-//
-//            threads[0] = server;
-//            threads[1] = client;
-//            threads[2] = client2;
-//            threads[3] = client3;
-//            threads[4] = client4;
-//            threads[5] = client5;
-//            threads[6] = client6;
-//            threads[7] = client7;
-//            threads[8] = client8;
+            threads.forEach(Thread::start);
         }
         //--- End Network Stuff ---//
 
@@ -179,6 +154,10 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     }
 
     public void returnToMenu(){
+        if(client != null && client.isAlive()){
+            client.leave();
+        }
+
         game.changeScreen(new MainMenuScreen(game));
     }
 
@@ -292,6 +271,8 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         cardsInHand.setCards(nwb.fetchAllCards());
 
         Gdx.app.postRunnable(() -> {
+            stage.setDebugAll(nwb.getCurrentPlayerID() == client.getPlayerID());
+
             scrollElements = playerInfos
                     .stream()
                     .map(PlayerScrollElement::new)

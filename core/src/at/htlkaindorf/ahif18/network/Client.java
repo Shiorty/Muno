@@ -3,6 +3,7 @@ package at.htlkaindorf.ahif18.network;
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.ConcurrentQueue;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
+import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
@@ -13,10 +14,10 @@ import java.util.List;
  * Connection from Client to Server
  * Sending and Receiving are handled in seperate threads
  *
- * Last changed: 2022-06-03
+ * Last changed: 2022-06-16
  * @author Andreas Kurz; Jan Mandl
  */
-public class Client extends Thread{
+public class Client extends Thread implements MessageConverter.ServerMessageListener {
 
     public static final String SERVER_IP = "127.0.0.1";
 
@@ -27,6 +28,7 @@ public class Client extends Thread{
     private String message;
     private NetworkBuffer networkBuffer;
 
+    @Getter
     private int playerID;
 
 
@@ -54,7 +56,9 @@ public class Client extends Thread{
     public void interrupt() {
         //System.out.println("Client interrupted");
 
-        serverConnection.close();
+        if(serverConnection != null && serverConnection.isConnected()){
+            serverConnection.close();
+        }
         super.interrupt();
     }
 
@@ -87,7 +91,26 @@ public class Client extends Thread{
         }
     }
 
-    public void receivedInit(int playerID, Card lastPlayedCard, List<Card> cards, List<PlayerInfo> otherPlayers) {
+    public void playCard(Card card) {
+        sendTasks.push(() -> {
+            MessageConverter.sendClientCardPlayed(serverConnection.getOutputStream(), card);
+        });
+    }
+
+    public void drawCard(){
+        sendTasks.push(() -> {
+            MessageConverter.sendClientDrawCard(serverConnection.getOutputStream());
+        });
+    }
+
+    public void leave(){
+        sendTasks.push(() -> {
+            MessageConverter.sendClientEnd(serverConnection.getOutputStream());
+        });
+    }
+
+    @Override
+    public void receiveInit(int playerID, Card lastPlayedCard, List<Card> cards, List<PlayerInfo> otherPlayers) {
         this.playerID = playerID;
 
         networkBuffer.setCards(cards);
@@ -103,28 +126,24 @@ public class Client extends Thread{
         //System.out.println(message + " " + otherPlayers);
     }
 
-    public void receivedTalk(String message) {
-        System.out.println(message);
-    }
-
-    public void playerJoined(PlayerInfo newPlayer) {
+    @Override
+    public void receivePlayerJoined(PlayerInfo newPlayer) {
         networkBuffer.addPlayer(newPlayer);
         //System.out.println(message + " New Player Joined: " + newPlayer);
     }
 
-    public void playCard(Card card) {
-        sendTasks.push(() -> {
-            MessageConverter.sendClientCardPlayed(serverConnection.getOutputStream(), card);
-        });
+    @Override
+    public void receivePlayerLeft(PlayerInfo deadPlayer) {
+        networkBuffer.removePlayer(deadPlayer);
     }
 
-    public void drawCard(){
-        sendTasks.push(() -> {
-            MessageConverter.sendClientDrawCard(serverConnection.getOutputStream());
-        });
+    @Override
+    public void receiveTalk(String message) {
+        System.out.println(message);
     }
 
-    public void cardPlayed(PlayerInfo player, Card card) {
+    @Override
+    public void receiveCardPlayed(PlayerInfo player, Card card) {
         networkBuffer.setLastPlayedCard(card);
 
         if(this.playerID == player.getPlayerID())
@@ -141,13 +160,18 @@ public class Client extends Thread{
         }
     }
 
-    public void cardDrawn(Card drawnCard) {
-        networkBuffer.addCard(drawnCard);
+    @Override
+    public void receiveCardDrawn(Card card) {
+        networkBuffer.addCard(card);
     }
 
-    public void playerUpdate(PlayerInfo playerInfo, int currentPlayerID) {
+    @Override
+    public void receivePlayerUpdate(PlayerInfo playerInfo) {
         networkBuffer.playerUpdate(playerInfo);
+    }
 
-        networkBuffer.setCurrentPlayerID(currentPlayerID);
+    @Override
+    public void receiveCurrentPlayerUpdate(int currentPlayer) {
+        networkBuffer.setCurrentPlayerID(currentPlayer);
     }
 }

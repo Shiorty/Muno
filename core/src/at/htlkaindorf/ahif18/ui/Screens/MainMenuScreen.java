@@ -68,6 +68,7 @@ public class MainMenuScreen implements Screen {
 
         //Create buttons
         TextButton playButton = new TextButton("PLAY", skin);
+        TextButton hostButton = new TextButton("HOST", skin);
         TextButton optionsButton = new TextButton("OPTIONS", skin);
         TextButton exitButton = new TextButton("EXIT", skin);
 
@@ -76,7 +77,15 @@ public class MainMenuScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 game.getScreen().dispose();
-                game.setScreen(new GameScreen(game));
+                game.setScreen(new GameScreen(game, false));
+            }
+        });
+
+        hostButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.getScreen().dispose();
+                game.setScreen(new GameScreen(game, true));
             }
         });
 
@@ -106,6 +115,8 @@ public class MainMenuScreen implements Screen {
         mainTable.add(new MainMenuCardsActor()).width(1600).height(300).padTop(100).padBottom(100);
         mainTable.row();
         mainTable.add(playButton).height(25);
+        mainTable.row();
+        mainTable.add(hostButton).height(25).padTop(25);
         mainTable.row();
         mainTable.add(optionsButton).height(25).padTop(25);
         mainTable.row();
