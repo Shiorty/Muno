@@ -51,9 +51,9 @@ public class ClientConnection extends Thread {
     @SneakyThrows
     @Override
     public void interrupt() {
-        System.out.println("Connection interrupted");
+        //System.out.println("Connection interrupted");
 
-        System.out.println("Receive Thread interrupted");
+        //System.out.println("Receive Thread interrupted");
         receiveThread.interrupt();
 
         socket.close();
@@ -105,6 +105,7 @@ public class ClientConnection extends Thread {
     }
 
     public void sendInitResponse(Card lastPlayedCard, List<PlayerInfo> playerInfos, ArrayList<Card> cards) {
+        //System.out.println("ClientConnection:sendInitResponse -> ID: " + playerID + ": " + playerInfos);
         sendTasks.push(() -> {
             MessageConverter.sendServerInit(playerID, socket.getOutputStream(), lastPlayedCard, playerInfos, cards);
         });

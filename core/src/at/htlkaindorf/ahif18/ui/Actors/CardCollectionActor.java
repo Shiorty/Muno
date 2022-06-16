@@ -137,7 +137,7 @@ public class CardCollectionActor extends Actor {
 
                 if(cardInfo.hitBox.contains(touchPos.x, touchPos.y))
                 {
-                    System.out.println(cardInfo.card.name() + " was clicked!");
+                    //System.out.println(cardInfo.card.name() + " was clicked!");
                     cardClickedListener.cardClicked(this, i);
                 }
             }

@@ -27,10 +27,12 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
+ * Manages the Uno Game itself and displays everything that is necessary to play it.
+ * <br>
+ * Last changed: 2022-06-13
  * @author Jan Mandl; Andreas Kurz
  */
 public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.CardClickedListener {
@@ -130,9 +132,9 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
             Server server = new Server();
             server.start();
 
-            Client client = new Client( nwb, "Shoooorty");
-//            Client client2 = new Client(new NetworkBuffer(() -> {}));
-//            Client client3 = new Client(new NetworkBuffer(() -> {}));
+            Client client = new Client( nwb, "keivn");
+            Client client2 = new Client(new NetworkBuffer(() -> {}), "flyingCat");
+            Client client3 = new Client(new NetworkBuffer(() -> {}), "tet");
 //            Client client4 = new Client(new NetworkBuffer(() -> {}));
 //            Client client5 = new Client(new NetworkBuffer(() -> {}));
 //            Client client6 = new Client(new NetworkBuffer(() -> {}));
@@ -142,14 +144,14 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
             this.client = client;
             client.start();
           
-            threads = new Thread[2];
+            threads = new Thread[4];
             threads[0] = client;
             threads[1] = server;
-//
-//            server.start();
-//            client.start();
-//            client2.start();
-//            client3.start();
+            threads[2] = client2;
+            threads[3] = client3;
+
+            client2.start();
+            client3.start();
 //            client4.start();
 //            client5.start();
 //            client6.start();
@@ -280,7 +282,7 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
 
 	public void notifyElement() {
         List<PlayerInfo> playerInfos = nwb.fetchAllPlayers();
-        System.out.println(playerInfos);
+        //System.out.println(playerInfos);
 
         lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
         cardsInHand.setCards(nwb.fetchAllCards());

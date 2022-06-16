@@ -122,7 +122,9 @@ public class NetworkBuffer {
      * @param playerInfo the new player in the session
      */
     public void addPlayer(PlayerInfo playerInfo) {
-        playerList.add(playerInfo);
+        if(!playerList.contains(playerInfo)) {
+            playerList.add(playerInfo);
+        }
         notifyObservers();
     }
 

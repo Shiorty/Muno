@@ -52,7 +52,7 @@ public class Client extends Thread{
     @SneakyThrows
     @Override
     public void interrupt() {
-        System.out.println("Client interrupted");
+        //System.out.println("Client interrupted");
 
         serverConnection.close();
         super.interrupt();
@@ -94,11 +94,13 @@ public class Client extends Thread{
         networkBuffer.setLastPlayedCard(lastPlayedCard);
         networkBuffer.setPlayers(otherPlayers);
 
-        System.out.println("Client: " + Thread.currentThread().getName());
+        //System.out.println("Client:receivedInit -> ID: " + playerID + ": " + otherPlayers);
 
-        System.out.println(message + " " + lastPlayedCard);
-        System.out.println(message + " " + cards);
-        System.out.println(message + " " + otherPlayers);
+        //System.out.println("Client: " + Thread.currentThread().getName());
+
+        //System.out.println(message + " " + lastPlayedCard);
+        //System.out.println(message + " " + cards);
+        //System.out.println(message + " " + otherPlayers);
     }
 
     public void receivedTalk(String message) {
@@ -107,7 +109,7 @@ public class Client extends Thread{
 
     public void playerJoined(PlayerInfo newPlayer) {
         networkBuffer.addPlayer(newPlayer);
-        System.out.println(message + " New Player Joined: " + newPlayer);
+        //System.out.println(message + " New Player Joined: " + newPlayer);
     }
 
     public void playCard(Card card) {
@@ -133,7 +135,7 @@ public class Client extends Thread{
         else
         {
             //Thats not me :(
-            System.out.println("Thats not me :(");
+            //System.out.println("Thats not me :(");
 
             networkBuffer.playerUpdate(player);
         }
@@ -145,7 +147,7 @@ public class Client extends Thread{
 
     public void playerUpdate(PlayerInfo playerInfo, int currentPlayerID) {
         networkBuffer.playerUpdate(playerInfo);
-        networkBuffer.setCurrentPlayerID(currentPlayerID);
 
+        networkBuffer.setCurrentPlayerID(currentPlayerID);
     }
 }
