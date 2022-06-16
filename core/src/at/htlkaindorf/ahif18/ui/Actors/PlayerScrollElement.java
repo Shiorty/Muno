@@ -1,36 +1,38 @@
 package at.htlkaindorf.ahif18.ui.Actors;
 
+import at.htlkaindorf.ahif18.bl.FontLoader;
 import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
-import at.htlkaindorf.ahif18.bl.FontLoader;
 import at.htlkaindorf.ahif18.ui.DrawUtils;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.Collections;
-
-
+/**
+ * Represents a player in the scroll area
+ *
+ * Last changed: 2022-06-16
+ * @author Jan Mandl, Andreas Kurz
+ */
 public class PlayerScrollElement extends Group {
 
     private static final Label.LabelStyle LABEL_STYLE = new Label.LabelStyle(FontLoader.generateFont(FontLoader.Font.PIXEL, 48), Color.BLACK);
 
-    private PlayerInfo player;
-    private ShapeRenderer shapeRenderer;
+    private final Table table;
+    private final Label lbPlayerName;
+    private final Label lbCardAmount;
 
-    private Table table;
-    private Label lbPlayerName;
-    private Label lbCardAmount;
+    @Setter
+    @Getter
+    private PlayerInfo player;
 
     public PlayerScrollElement(PlayerInfo play) {
 //        setBounds(0, 0, 100, 100);
         this.player = play;
-        this.shapeRenderer = new ShapeRenderer();
 
         lbPlayerName = new Label("", LABEL_STYLE);
         lbCardAmount = new Label("", LABEL_STYLE);
@@ -59,14 +61,9 @@ public class PlayerScrollElement extends Group {
 
         //set label values
         lbPlayerName.setText(player.getPlayerName());
-        lbCardAmount.setText(formatPlayerCardAmount(player.getCardAmount()));
+        lbCardAmount.setText(String.format(" X %02d", player.getCardAmount()));
 
         //Draws Table
         super.draw(batch, parentAlpha);
-    }
-
-    public String formatPlayerCardAmount(int cardAmount)
-    {
-        return String.format(" X %02d", cardAmount);
     }
 }
