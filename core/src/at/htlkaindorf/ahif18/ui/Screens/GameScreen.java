@@ -283,6 +283,10 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         System.out.println(playerInfos);
 
         lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
+
+        //TODO darf nicht! im network thread gemacht werden
+        //TODO in der methode wird die Arraylist modifiziert
+        //TODO wenn der GUI Thread gleichzeitig auf die Liste zugreift gibt es eine exception!
         cardsInHand.setCards(nwb.fetchAllCards());
 
         Gdx.app.postRunnable(() -> {
