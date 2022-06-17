@@ -108,7 +108,7 @@ public class OptionScreen implements Screen {
         //--- Create SettingsTable ---//
         tableSettings = new Table();
         tableSettings.left();
-        tableSettings.columnDefaults(0).align(Align.left).width(450);
+        tableSettings.columnDefaults(0).align(Align.left).width(450).padBottom(15);
         tableSettings.columnDefaults(1).align(Align.left).width(200).expandX();
 
         tableSettings.add(lbPlayerName);
