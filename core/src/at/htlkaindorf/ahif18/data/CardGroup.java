@@ -13,6 +13,8 @@ public enum CardGroup {
     Green(),
     Yellow(),
 
+    Skip(),
+
     N0(),
     N1(),
     N2(),
@@ -22,5 +24,5 @@ public enum CardGroup {
     N6(),
     N7(),
     N8(),
-    N9();
+    N9()
 }

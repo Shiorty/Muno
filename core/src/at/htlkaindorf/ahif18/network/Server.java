@@ -158,11 +158,11 @@ public class Server extends Thread{
         return -1;
     }
 
-    // --- Gameplay --- //
-
     public int getCurrentPlayerID(){
         return players.get(currentPlayerIndex.currentValue()).getPlayerID();
     }
+
+    // --- Player Triggered Events --- //
 
     public void playerJoined(int id, String name){
         Player newPlayer = findPlayerOfID(id);
@@ -240,6 +240,14 @@ public class Server extends Thread{
         players.forEach(player -> {
            player.getConnection().sendCardPlayed(currentPlayer.getPlayerInfo(), cardPlayed);
         });
+
+        if( cardPlayed == Card.BSKIP ||
+            cardPlayed == Card.YSKIP ||
+            cardPlayed == Card.RSKIP ||
+            cardPlayed == Card.GSKIP)
+        {
+            currentPlayerIndex.nextValue();
+        }
 
         //tell all players who the new current player is
         currentPlayerIndex.nextValue();
