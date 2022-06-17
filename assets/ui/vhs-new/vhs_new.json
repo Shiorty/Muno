@@ -8,6 +8,12 @@ com.badlogic.gdx.graphics.g2d.BitmapFont: {
 	}
 }
 com.badlogic.gdx.graphics.Color: {
+	LIGHT_GREY: {
+		r: 0.93333334
+		g: 0.93333334
+		b: 0.93333334
+		a: 1
+	}
 	RGBA_0_0_0_255: {
 		r: 0
 		g: 0
@@ -139,6 +145,10 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 		up: roundedButton
 		over: buttonBorderOver
 	}
+	noHover: {
+		font: font
+		up: button
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 	default: {
@@ -147,6 +157,7 @@ com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 		background: textfield
 		cursor: cursor
 		selection: selection
+		messageFontColor: LIGHT_GREY
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {

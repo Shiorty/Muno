@@ -2,12 +2,12 @@ package at.htlkaindorf.ahif18.data;
 
 import com.badlogic.gdx.graphics.Texture;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 /**
  * Saves all the Card types and the corresponding<br>
  * paths to their textures.
+ *
  * <br><br>
  * Last changed: 2022-06-03
  * @author Jan Mandl, Kurz Andreas
@@ -15,7 +15,11 @@ import java.util.Random;
 public enum Card {
 
     CARD_BACK("card_back.png", CardGroup.values()),
-    PLUS_4("card_back.png", CardGroup.values()),
+
+    RSKIP("red_skip.png", CardGroup.Red, CardGroup.Skip),
+    BSKIP("blue_skip.png", CardGroup.Blue, CardGroup.Skip),
+    GSKIP("green_skip.png", CardGroup.Green, CardGroup.Skip),
+    YSKIP("yellow_skip.png", CardGroup.Yellow, CardGroup.Skip),
 
     R0("red_0.png", CardGroup.Red, CardGroup.N0),
     R1("red_1.png", CardGroup.Red, CardGroup.N1),
@@ -96,9 +100,13 @@ public enum Card {
         return false;
     }
 
-    //TODO make that Card Back cant be gg etted
+    /**
+     * Returns a random card<br>
+     * The first card is skipped
+     * @return a random card
+     */
     public static Card randomCard(){
         Random r = new Random();
-        return values()[r.nextInt(values().length)];
+        return values()[r.nextInt(values().length - 1) + 1];
     }
 }

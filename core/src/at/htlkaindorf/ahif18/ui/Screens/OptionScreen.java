@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 /**
  * Screen which lets users change their preferences
  *
+ * <br><br>
  * Last changed: 2022-06-16
  * @author Andreas Kurz
  */
@@ -60,6 +61,14 @@ public class OptionScreen implements Screen {
         Label title = new Label("OPTIONS", skin);
         title.setFontScale(2);
 
+        Label lbPlayerName = new Label("Player name: ", skin);
+        TextField tfPlayerName = new TextField("", skin);
+        tfPlayerName.setText(Settings.getInstance().getKeyValue(Settings.Key.PLAYER_NAME));
+        tfPlayerName.setMaxLength(15);
+        tfPlayerName.setTextFieldListener((textField, c) -> {
+            Settings.getInstance().saveValue(Settings.Key.PLAYER_NAME, textField.getText());
+        });
+
         Label lbBackgroundColor = new Label("Background Color: ", skin);
         TextField tfColorInput = new TextField("", skin);
         tfColorInput.setText("#" + backgroundColor.toString());
@@ -99,9 +108,12 @@ public class OptionScreen implements Screen {
         //--- Create SettingsTable ---//
         tableSettings = new Table();
         tableSettings.left();
-        tableSettings.columnDefaults(0).align(Align.left).width(450);
+        tableSettings.columnDefaults(0).align(Align.left).width(450).padBottom(15);
         tableSettings.columnDefaults(1).align(Align.left).width(200).expandX();
 
+        tableSettings.add(lbPlayerName);
+        tableSettings.add(tfPlayerName).width(400);
+        tableSettings.row();
         tableSettings.add(lbBackgroundColor);
         tableSettings.add(tfColorInput);
         tableSettings.row();
@@ -120,10 +132,16 @@ public class OptionScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
     }
 
+    /**
+     * Swaps back to the main menu
+     */
     public void returnToMenu(){
         game.changeScreen(new MainMenuScreen(game));
     }
 
+    /**
+     * Resets all Settings present
+     */
     public void resetSettings(){
         Settings.getInstance().restoreDefaults();
         game.changeScreen(new OptionScreen(game));

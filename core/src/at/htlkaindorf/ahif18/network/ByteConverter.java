@@ -5,6 +5,7 @@ import java.util.Arrays;
 /**
  * Converts various data types to and from byte[]
  *
+ * <br><br>
  * Last changed: 2022-05-10
  * @author Andreas Kurz; Jan Mandl
  */
@@ -26,7 +27,7 @@ public class ByteConverter {
      * @return int representing the integer
      */
     public static int byteToInt(byte value){
-        return (int) (value + 128);
+        return value + 128;
     }
 
     /**
@@ -53,7 +54,7 @@ public class ByteConverter {
      * @param bytes byte[] to be converted
      * @param offset starting point of the byte[]
      * @param length amount of bytes to be converted
-     * @return
+     * @return the int
      */
     public static int bytesToInt(byte[] bytes, int offset, int length)
     {

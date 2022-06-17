@@ -2,15 +2,15 @@ package at.htlkaindorf.ahif18.ui.Screens;
 
 import at.htlkaindorf.ahif18.MunoGame;
 import at.htlkaindorf.ahif18.bl.I_Notifiable;
+import at.htlkaindorf.ahif18.bl.Settings;
+import at.htlkaindorf.ahif18.data.Card;
 import at.htlkaindorf.ahif18.data.PlayerInfo;
 import at.htlkaindorf.ahif18.network.Client;
+import at.htlkaindorf.ahif18.network.NetworkBuffer;
 import at.htlkaindorf.ahif18.network.Server;
 import at.htlkaindorf.ahif18.ui.Actors.CardCollectionActor;
 import at.htlkaindorf.ahif18.ui.Actors.PlayerScrollElement;
 import at.htlkaindorf.ahif18.ui.Actors.UnoCard;
-import at.htlkaindorf.ahif18.data.Card;
-import at.htlkaindorf.ahif18.network.NetworkBuffer;
-import at.htlkaindorf.ahif18.bl.Settings;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -26,13 +26,15 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Manages the Uno Game itself and displays everything that is necessary to play it.
- * <br>
- * Last changed: 2022-06-13
+ *
+ * <br><br>
+ * Last changed: 2022-06-17
  * @author Jan Mandl; Andreas Kurz
  */
 public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.CardClickedListener {
@@ -55,22 +57,47 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     //Other Variables
     //buffers the network
     private NetworkBuffer nwb;
-    private Thread[] threads;
+    private List<Thread> threads;
     private Client client;
 
-    public GameScreen(MunoGame game)
+    /**
+     * Creates a new GameScreen which is used to host a game
+     * @param game The Instance of the MunoGame class
+     * @param playerName The name of the player
+     */
+    public GameScreen(MunoGame game, String playerName)
+    {
+        this(game, playerName, null);
+    }
+
+    /**
+     * Creates a new GameScreen that is used to join a game
+     * @param game The Instance of the MunoGame class
+     * @param playerName The name of the player
+     * @param hostIP the IP of the server<br>
+     *               The game will be hosted if omitted
+     */
+    public GameScreen(MunoGame game, String playerName, String hostIP)
     {
         this.game = game;
-        skin = new Skin(Gdx.files.internal("ui/vhs-new/vhs_new.json"));
-        viewport = new FitViewport(MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]);
-        stage = new Stage(viewport);
-        //stage.setDebugAll(true);
 
+        //load background color from settings
         backgroundColor = Settings.getInstance().getBackgroundColor();
 
+        //load game skin
+        skin = new Skin(Gdx.files.internal("ui/vhs-new/vhs_new.json"));
+
+        //create new stage
+        viewport = new FitViewport(MunoGame.SCREEN_SIZE[0], MunoGame.SCREEN_SIZE[1]);
+        stage = new Stage(viewport);
+
+        //set the stage as the input processor
         Gdx.input.setInputProcessor(stage);
 
+        //setup gui components
         menuButtons = new TextButton[2];
+
+        //create Menu button
         menuButtons[0] = new TextButton("Menu", skin.get("border", TextButton.TextButtonStyle.class));
         menuButtons[0].setSize(175, 50);
         menuButtons[0].setPosition(20, 825);//y position is desired position - height
@@ -81,6 +108,8 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
             }
         });
         stage.addActor(menuButtons[0]);
+
+        //create chat button
         menuButtons[1] = new TextButton("Chat", skin.get("border", TextButton.TextButtonStyle.class));
         menuButtons[1].setSize(175, 50);
         menuButtons[1].setPosition(225, 825);//y position is desired position - height
@@ -92,6 +121,7 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         });
         stage.addActor(menuButtons[1]);
 
+        //setup the scrollbar
         scrollTable = new Table();
         scrollTable.columnDefaults(0).padTop(10).padBottom(10).width(600).height(80).expandX();
         ScrollPane scrollPane = new ScrollPane(scrollTable, skin);
@@ -99,7 +129,6 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         scrollPane.setHeight(900);
         scrollPane.setWidth(650);
         scrollPane.setFadeScrollBars(false);
-
         stage.addActor(scrollPane);
 
         //Make the scrollpane scrollable without having to click on it first
@@ -125,73 +154,45 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         cardsInHand.setBounds(25, 25, 900, 150);
         stage.addActor(cardsInHand);
 
+
         //--- Network Stuff ---//
         {
+
+            threads = new ArrayList<>();
+
             nwb = new NetworkBuffer(this);
+            client = new Client( nwb, playerName, hostIP);
+            threads.add(client);
 
-            Server server = new Server();
-            server.start();
+            if(hostIP == null)
+            {
+                Server server = new Server();
+                threads.add(server);
+            }
 
-            Client client = new Client( nwb, "keivn");
-            Client client2 = new Client(new NetworkBuffer(() -> {}), "flyingCat");
-            Client client3 = new Client(new NetworkBuffer(() -> {}), "tet");
-//            Client client4 = new Client(new NetworkBuffer(() -> {}));
-//            Client client5 = new Client(new NetworkBuffer(() -> {}));
-//            Client client6 = new Client(new NetworkBuffer(() -> {}));
-//            Client client7 = new Client(new NetworkBuffer(() -> {}));
-//            Client client8 = new Client(new NetworkBuffer(() -> {}));
-
-            this.client = client;
-            client.start();
-          
-            threads = new Thread[4];
-            threads[0] = client;
-            threads[1] = server;
-            threads[2] = client2;
-            threads[3] = client3;
-
-            client2.start();
-            client3.start();
-//            client4.start();
-//            client5.start();
-//            client6.start();
-//            client7.start();
-//            client8.start();
-//
-//            threads[0] = server;
-//            threads[1] = client;
-//            threads[2] = client2;
-//            threads[3] = client3;
-//            threads[4] = client4;
-//            threads[5] = client5;
-//            threads[6] = client6;
-//            threads[7] = client7;
-//            threads[8] = client8;
+            threads.forEach(Thread::start);
         }
         //--- End Network Stuff ---//
-
-        //TODO Check what validate even does
-        scrollPane.validate();
-
-        //is used to set the scroll percentage
-//        scrollPane.setScrollPercentY(20f / Card.values().length);
-//        scrollPane.updateVisualScroll();
     }
 
+    /**
+     * Action that retuns to the main menu<br>
+     * Will send a leave message to the server if a client is active
+     */
     public void returnToMenu(){
+        if(client != null && client.isAlive()){
+            client.leave();
+        }
+
         game.changeScreen(new MainMenuScreen(game));
     }
 
     /**
-     * Adds Random card to Hand
+     * Sends draw card request to server
      */
     public void drawCard()
     {
         client.drawCard();
-    }
-
-    public void updateCards() {
-        cardsInHand.setCards(nwb.fetchAllCards());
     }
 
 
@@ -203,20 +204,17 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     @Override
     public void render(float delta) {
         ScreenUtils.clear(backgroundColor);
+
         stage.act(delta);
-
         controls(delta);
-
-        /*
-        Batch b = stage.getBatch();
-        b.begin();
-        b.draw(Card.RED_3.getTexture(), 20, 20, 100, 100);
-        b.end();
-        */
 
         stage.draw();
     }
 
+    /**
+     * Tests if any hotkey was pressed
+     * @param delta time elapsed since the last frame (in ms)
+     */
     public void controls(float delta)
     {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -272,30 +270,31 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     public void cardClicked(CardCollectionActor cardsInHand, int playedCardIndex) {
         Card playedCard = cardsInHand.getCard(playedCardIndex);
 
-        if(playedCard.hasEqualGroup(lastPlayedCard.getCard())) {
-//            lastPlayedCard.setCard(playedCard);
-//            cardsInHand.removeCard(playedCardIndex);
-
+        //test if card can be played
+        if(playedCard.hasEqualGroup(lastPlayedCard.getCard()))
+        {
+            //send play card request
             client.playCard(playedCard);
         }
     }
 
+    @Override
 	public void notifyElement() {
-        List<PlayerInfo> playerInfos = nwb.fetchAllPlayers();
-        //System.out.println(playerInfos);
-
-        lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
-
-        //TODO darf nicht! im network thread gemacht werden
-        //TODO in der methode wird die Arraylist modifiziert
-        //TODO wenn der GUI Thread gleichzeitig auf die Liste zugreift gibt es eine exception!
-        cardsInHand.setCards(nwb.fetchAllCards());
-
         Gdx.app.postRunnable(() -> {
-            scrollElements = playerInfos
+            lastPlayedCard.setCard(nwb.fetchLastPlayedCard());
+            cardsInHand.setCards(nwb.fetchAllCards());
+
+            boolean myTurn = nwb.getCurrentPlayerID() == client.getPlayerID();
+            cardsInHand.setActive(myTurn);
+            deck.setActive(myTurn);
+
+            scrollElements = nwb.fetchAllPlayers()
                     .stream()
                     .map(PlayerScrollElement::new)
                     .collect(Collectors.toList());
+
+            scrollElements.stream().filter(scrollElements -> scrollElements.getPlayer().getPlayerID() == client.getPlayerID()).findFirst().ifPresent(player -> player.setLocalPlayer(true));
+            scrollElements.stream().filter(scrollElements -> scrollElements.getPlayer().getPlayerID() == nwb.getCurrentPlayerID()).findFirst().ifPresent(player -> player.setCurrentPlayer(true));
 
             scrollTable.clear();
 

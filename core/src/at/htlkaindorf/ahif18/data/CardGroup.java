@@ -4,6 +4,7 @@ package at.htlkaindorf.ahif18.data;
  * The Groups the Cards belong to. Two cards sharing a group means that they
  * are allowed to be laid on top of each other.
  *
+ * <br><br>
  * Last changed: 2022-05-16
  * @author Jan Mandl
  */
@@ -12,6 +13,8 @@ public enum CardGroup {
     Blue(),
     Green(),
     Yellow(),
+
+    Skip(),
 
     N0(),
     N1(),
@@ -22,5 +25,5 @@ public enum CardGroup {
     N6(),
     N7(),
     N8(),
-    N9();
+    N9()
 }

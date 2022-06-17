@@ -5,6 +5,15 @@ import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 import at.htlkaindorf.ahif18.MunoGame;
 
+/**
+ * Specifies how the game will be launched as a Website<br>
+ * HTML support was dropped due to it not being compatible with direct network access :(
+ *
+ * <br><br>
+ * Last changed: 2022-03-21
+ * @author Andreas Kurz
+ */
+@Deprecated
 public class HtmlLauncher extends GwtApplication {
 
         @Override

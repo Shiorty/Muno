@@ -9,6 +9,14 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+/**
+ * Screen which Tests certain capabilities of Libgdx<br>
+ * Shows all currently implemented Cards
+ *
+ * <br><br>
+ * Last changed: 2022-04-16
+ * @author Andreas Kurz
+ */
 public class TestScreen implements Screen {
 
     private static final float CAMERA_SCALE = 1.5f;
@@ -61,6 +69,9 @@ public class TestScreen implements Screen {
         moveCamera();
     }
 
+    /**
+     * Executes Keyboard/Controller inputs that occurred since the last frame<br>
+     */
     public void moveCamera(){
         if(Gdx.input.isKeyPressed(Input.Keys.W)){
             camera.position.y+= 5;

@@ -15,10 +15,16 @@ import lombok.Setter;
 /**
  * Represents a player in the scroll area
  *
- * Last changed: 2022-06-16
+ * <br><br>
+ * Last changed: 2022-06-17
  * @author Jan Mandl, Andreas Kurz
  */
 public class PlayerScrollElement extends Group {
+
+    private static final Color DEFAULT_BACKGROUND_COLOR = Color.valueOf("E8FFFF");
+    private static final Color LOCAL_PLAYER_COLOR = Color.valueOf("A6F6F1");
+
+    private static final Color CURRENT_PLAYER_OUTLINE_COLOR = Color.valueOf("41AEA9");
 
     private static final Label.LabelStyle LABEL_STYLE = new Label.LabelStyle(FontLoader.generateFont(FontLoader.Font.PIXEL, 48), Color.BLACK);
 
@@ -28,10 +34,17 @@ public class PlayerScrollElement extends Group {
 
     @Setter
     @Getter
+    private boolean isCurrentPlayer = false;
+
+    @Setter
+    @Getter
+    private boolean isLocalPlayer = false;
+
+    @Setter
+    @Getter
     private PlayerInfo player;
 
     public PlayerScrollElement(PlayerInfo play) {
-//        setBounds(0, 0, 100, 100);
         this.player = play;
 
         lbPlayerName = new Label("", LABEL_STYLE);
@@ -53,11 +66,23 @@ public class PlayerScrollElement extends Group {
         table.setDebug(enabled);
     }
 
+    /**
+     * Get the current Background color based upon the current state of the object
+     * @return the current background color
+     */
+    public Color getCurrentBackgroundColor(){
+        return isLocalPlayer ? LOCAL_PLAYER_COLOR : DEFAULT_BACKGROUND_COLOR;
+    }
+
     @Override
     public void draw(Batch batch, float parentAlpha) {
 
         //Draw Background Shape
-        DrawUtils.drawRectangle(batch, Color.valueOf("E8FFFF"), getX(), getY(), getWidth(), getHeight());
+        DrawUtils.drawRectangle(batch, getCurrentBackgroundColor(), getX(), getY(), getWidth(), getHeight());
+
+        if(isCurrentPlayer){
+            DrawUtils.drawRectangleOutline(batch, CURRENT_PLAYER_OUTLINE_COLOR, getX(), getY(), getWidth(), getHeight(), 4);
+        }
 
         //set label values
         lbPlayerName.setText(player.getPlayerName());

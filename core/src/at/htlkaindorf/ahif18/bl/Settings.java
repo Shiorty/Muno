@@ -11,6 +11,7 @@ import java.util.Collections;
 /**
  * Used to manage and store all user preferences
  *
+ * <br><br>
  * Last changed: 2022-06-16
  * @author Andreas Kurz
  */
@@ -23,13 +24,19 @@ public class Settings {
      */
     @Getter
     @AllArgsConstructor
-    private enum Key {
+    public enum Key {
+        PLAYER_NAME("I <3 cats"),
         BACKGROUND_COLOR("#8fcdc900");
 
-        String defaultValue;
+        final String defaultValue;
     }
 
     private static Settings instance;
+
+    /**
+     * Return the instance of Settings
+     * @return the instance
+     */
     public static synchronized Settings getInstance()
     {
         if(instance == null)

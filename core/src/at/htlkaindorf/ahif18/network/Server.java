@@ -1,24 +1,27 @@
 package at.htlkaindorf.ahif18.network;
 
-import at.htlkaindorf.ahif18.data.*;
+import at.htlkaindorf.ahif18.data.Card;
+import at.htlkaindorf.ahif18.data.LoopingSequence;
+import at.htlkaindorf.ahif18.data.PlayerInfo;
+import at.htlkaindorf.ahif18.data.Sequence;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.w3c.dom.ls.LSOutput;
 
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Server Thread handling new Clients
  * When a new client connects a new ClientConnection Thread is opened
  *
- * Last changed: 2022-06-03
+ * <br><br>
+ * Last changed: 2022-06-16
  * @author Andreas Kurz; Jan Mandl
  */
 public class Server extends Thread{
@@ -26,15 +29,18 @@ public class Server extends Thread{
     public static final int PORT = 60000;
     public static final int DEFAULT_CARD_AMOUNT = 7;
 
+    /**
+     * Class containing information about a player
+     */
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    private class Player
+    private static class Player
     {
         private ClientConnection connection;
         private String name;
         private int playerID;
-        private ArrayList<Card> cards;
+        private List<Card> cards;
 
         public Player(ClientConnection connection, int playerID){
             this.connection = connection;
@@ -42,16 +48,22 @@ public class Server extends Thread{
             generateNewCards(DEFAULT_CARD_AMOUNT);
         }
 
+        /**
+         * Generates a new deck for the player
+         * @param amount amount of cards
+         */
         public void generateNewCards(int amount)
         {
-            Random r = new Random();
-
-            cards  = new ArrayList<>(amount);
-            for(int i = 0; i < amount; i++){
-                cards.add(Card.randomCard());
-            }
+            cards = IntStream
+                    .range(0, amount)
+                    .mapToObj(i -> Card.randomCard())
+                    .collect(Collectors.toList());
         }
 
+        /**
+         * Returns a PlayerInfo object containting all the information about the client
+         * @return information about the player
+         */
         public PlayerInfo getPlayerInfo()
         {
             return new PlayerInfo(playerID, name, cards.size());
@@ -76,16 +88,6 @@ public class Server extends Thread{
         lastPlayedCard = Card.randomCard();
     }
 
-    @Override
-    public void run()
-    {
-        try {
-            runServer();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
     @SneakyThrows
     @Override
     public void interrupt() {
@@ -96,6 +98,23 @@ public class Server extends Thread{
         super.interrupt();
     }
 
+    @Override
+    public void run()
+    {
+        try
+        {
+            runServer();
+        }
+        catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * Starts the server thread<br>
+     * The server thread will wait for a client to connect
+     * @throws Exception when an error occurs
+     */
     public void runServer() throws Exception
     {
         socket = new ServerSocket(PORT);
@@ -105,11 +124,6 @@ public class Server extends Thread{
             Socket clientSocket = socket.accept();
 
             int playerID = playerIDSequence.nextValue();
-            currentPlayerIndex = new LoopingSequence(
-                    0,
-                    currentPlayerIndex.getEnd() + 1,
-                    currentPlayerIndex.currentValue() == -1 ? 1 : currentPlayerIndex.currentValue() + 1
-            );
 
             ClientConnection connection = new ClientConnection(this, clientSocket, playerID);
 
@@ -122,12 +136,45 @@ public class Server extends Thread{
         }
     }
 
+    /**
+     * Creates a new Player Sequence Object<br>
+     * should always be called when the number of player changes
+     */
+    private void reconfigureCurrentPlayerSequence()
+    {
+        int currentIndex = currentPlayerIndex.currentValue();
+
+        if(currentIndex == -1){
+            currentIndex = 0;
+        }
+
+        if(currentIndex >= players.size()){
+            currentIndex = 0;
+        }
+
+        currentPlayerIndex = new LoopingSequence(
+                0,
+                players.size(),
+                currentIndex
+        );
+    }
+
+    /**
+     * Searches for the player object with a certain ID
+     * @param id the ID of the player
+     * @return the player object representing the player
+     */
     private Player findPlayerOfID(int id){
         return players.stream().filter(player ->
             id == player.getPlayerID()
         ).findFirst().get();
     }
 
+    /**
+     * Searches for the index that the player object is located at
+     * @param id the id of the player
+     * @return the index of the player
+     */
     private int findIndexOfPlayer(int id){
         for(int i = 0; i < players.size(); i++)
         {
@@ -140,28 +187,67 @@ public class Server extends Thread{
         return -1;
     }
 
-    // --- Gameplay --- //
+    /**
+     * Gets the ID of the player who's turn it currently is
+     * @return the id of the current player
+     */
+    public int getCurrentPlayerID(){
+        return players.get(currentPlayerIndex.currentValue()).getPlayerID();
+    }
 
+    // --- Player Triggered Events --- //
+
+    /**
+     * Handles a player Join Event<br>
+     * Replies to the player and informs all other players
+     * @param id the id of the new player
+     * @param name the name of the new player
+     */
     public void playerJoined(int id, String name){
         Player newPlayer = findPlayerOfID(id);
         newPlayer.setName(name);
 
         List<PlayerInfo> playerInfos = players.stream()
-                                    .filter((player) -> player.getPlayerID() != id)
                                     .map(Player::getPlayerInfo)
                                     .collect(Collectors.toList());
 
         newPlayer.getConnection().sendInitResponse(lastPlayedCard, playerInfos, newPlayer.getCards());
 
-        for(Player player : players){
-            if(player.getPlayerID() == newPlayer.getPlayerID()){
-                continue;
-            }
+        reconfigureCurrentPlayerSequence();
 
-            player.getConnection().playerJoined(newPlayer.getPlayerInfo());
-        }
+        players.forEach(player -> {
+            player.getConnection().sendPlayerJoined(newPlayer.getPlayerInfo());
+            player.getConnection().sendCurrentPlayerUpdate(getCurrentPlayerID());
+        });
     }
 
+    /**
+     * Informs all other players about the player leaving
+     * @param id the id of the leaving player
+     */
+    public void playerLeft(int id) {
+
+        Player playerThatWantsToLeave = findPlayerOfID(id);
+
+        players.remove(findIndexOfPlayer(id));
+
+        reconfigureCurrentPlayerSequence();
+
+        playerThatWantsToLeave.getConnection().interrupt();
+
+        players.forEach(player -> {
+            player.getConnection().sendPlayerLeft(playerThatWantsToLeave.getPlayerInfo());
+            player.getConnection().sendCurrentPlayerUpdate(getCurrentPlayerID());
+        });
+
+    }
+
+    /**
+     * Decides if a card can be played<br>
+     * Also replies to all clients if the card has been played
+     * @param id the id of the player wanting to play a card
+     * @param cardPlayed the card that the player wants to plays
+     */
     public void cardPlayed(int id, Card cardPlayed) {
 
         int playerIndex = findIndexOfPlayer(id);
@@ -172,15 +258,11 @@ public class Server extends Thread{
             return;
         }
 
-        System.out.println(currentPlayerIndex);
-        if(playerIndex != currentPlayerIndex.currentValue())
+        if(id != getCurrentPlayerID())
         {
             //Its not the players turn
-            System.out.println("Server:cardPlayed -> Gegnerischer Zug");
-            currentPlayerIndex.nextValue();
+            System.out.println("Its not the players turn | Current Player is: " + getCurrentPlayerID() + " | your id is: " + id);
             return;
-        } else {
-            System.out.println("Server:cardPlayed -> Eigener Zug");
         }
 
         if(!findPlayerOfID(id).cards.contains(cardPlayed))
@@ -195,39 +277,61 @@ public class Server extends Thread{
             return;
         }
 
+        //Get information about the player
         Player currentPlayer = players.get(playerIndex);
 
+        //play the card
         lastPlayedCard = cardPlayed;
         currentPlayer.cards.remove(lastPlayedCard);
 
+        //notify all players about the card play
         players.forEach(player -> {
            player.getConnection().sendCardPlayed(currentPlayer.getPlayerInfo(), cardPlayed);
         });
+
+        if( cardPlayed == Card.BSKIP ||
+            cardPlayed == Card.YSKIP ||
+            cardPlayed == Card.RSKIP ||
+            cardPlayed == Card.GSKIP)
+        {
+            currentPlayerIndex.nextValue();
+        }
+
+        //tell all players who the new current player is
         currentPlayerIndex.nextValue();
+        players.forEach(player -> {
+            player.getConnection().sendCurrentPlayerUpdate(getCurrentPlayerID());
+        });
     }
 
+    /**
+     * Decides if a player can play a card<br>
+     * It then answers the player and informs all the other players
+     * @param playerID id of the payer wanting to draw a card
+     */
     public void drawCard(int playerID) {
 
         Player currentPlayer = findPlayerOfID(playerID);
 
-//        if(player.getPlayerID() != players.get(currentPlayerIndex).getPlayerID())
-//        {
-//            return;
-//        }
+        if(currentPlayer.getPlayerID() != getCurrentPlayerID())
+        {
+            //its not the players turn
+            return;
+        }
 
+        //Get a random card
         Card newCard = Card.randomCard();
 
         currentPlayer.cards.add(newCard);
         currentPlayer.connection.sendDrawnCard(newCard);
 
-        for(Player player : players)
-        {
-            if(player.getPlayerID() == currentPlayer.getPlayerID()){
-                continue;
-            }
+        players.forEach(player -> {
+            player.connection.sendPlayerUpdate(currentPlayer.getPlayerInfo());
+        });
 
-            //TODO implement current player stuff
-            player.connection.sendPlayerUpdate(currentPlayer.getPlayerInfo(), currentPlayerIndex.currentValue());
-        }
+        currentPlayerIndex.nextValue();
+        players.forEach(player -> {
+            player.getConnection().sendCurrentPlayerUpdate(getCurrentPlayerID());
+        });
     }
 }

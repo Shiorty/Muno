@@ -1,14 +1,13 @@
 package at.htlkaindorf.ahif18.ui.Screens;
 
-import at.htlkaindorf.ahif18.network.Client;
-import at.htlkaindorf.ahif18.network.Server;
-import at.htlkaindorf.ahif18.ui.Actors.MainMenuCardsActor;
 import at.htlkaindorf.ahif18.MunoGame;
 import at.htlkaindorf.ahif18.bl.Settings;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
+import at.htlkaindorf.ahif18.ui.Actors.JoinForm;
+import at.htlkaindorf.ahif18.ui.Actors.MainMenuCardsActor;
+import java.util.Arrays;
+import java.util.List;
+
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -16,16 +15,22 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+/**
+ * Displays the main Menu of the game
+ *
+ * <br><br>
+ * Last changed: 2022-06-17
+ * @author Andreas Kurz; Jan Mandl
+ */
 public class MainMenuScreen implements Screen {
 
     private MunoGame game;
@@ -39,6 +44,8 @@ public class MainMenuScreen implements Screen {
     private Skin skin;
 
     private Table mainTable;
+    private List<TextButton> mainMenuOptions;
+    private JoinForm joinForm;
 
     private Color backgroundColor;
 
@@ -70,23 +77,36 @@ public class MainMenuScreen implements Screen {
 
         //Create buttons
         TextButton playButton = new TextButton("PLAY", skin);
+        TextButton hostButton = new TextButton("HOST", skin);
         TextButton optionsButton = new TextButton("OPTIONS", skin);
         TextButton exitButton = new TextButton("EXIT", skin);
+
+        mainMenuOptions = Arrays.asList(
+            playButton,
+            hostButton,
+            optionsButton,
+            exitButton
+        );
 
         //Add listeners to buttons
         playButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getScreen().dispose();
-                game.setScreen(new GameScreen(game));
+                openJoinForm();
+            }
+        });
+
+        hostButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                hostGame();
             }
         });
 
         optionsButton.addListener(new ClickListener(){
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.getScreen().dispose();
-                game.setScreen(new OptionScreen(game));
+                game.changeScreen(new OptionScreen(game));
             }
         });
 
@@ -109,12 +129,70 @@ public class MainMenuScreen implements Screen {
         mainTable.row();
         mainTable.add(playButton).height(25);
         mainTable.row();
+        mainTable.add(hostButton).height(25).padTop(25);
+        mainTable.row();
         mainTable.add(optionsButton).height(25).padTop(25);
         mainTable.row();
         mainTable.add(exitButton).height(25).padTop(25).padBottom(75);
 
+        joinForm = new JoinForm(skin);
+        int width = 500, height = 300;
+        joinForm.setBounds(MunoGame.SCREEN_SIZE[0]/2 - 250 , -300,  width, height);
+        Color formColor = new Color(backgroundColor);
+        formColor.sub(0.1f, 0.1f, 0.1f, 0);
+        joinForm.setColor(formColor);
+        joinForm.setZIndex(1000);
+        joinForm.setVisible(true);
+        joinForm.addOnCloseListener(this::closeJoinForm);
+        joinForm.addFormSubmitListener(this::joinGame);
+
         //Add table to stage
         stage.addActor(mainTable);
+        stage.addActor(joinForm);
+    }
+
+    /**
+     * Opens the Form used to join different games
+     */
+    public void openJoinForm(){
+//        joinForm.setVisible(true);
+        joinForm.addAction(Actions.moveTo(MunoGame.SCREEN_SIZE[0]/2 - 250 , MunoGame.SCREEN_SIZE[1]/2 - 150, 0.5f));
+
+
+        //disable all other menu buttons buttons
+        mainMenuOptions.forEach(button -> {
+            button.setTouchable(Touchable.disabled);
+        });
+    }
+
+    /**
+     * Closes the Form used to join different games
+     */
+    public void closeJoinForm(){
+//        joinForm.setVisible(false);
+        joinForm.addAction(Actions.moveTo(MunoGame.SCREEN_SIZE[0]/2 - 250 , -300, 0.5f));
+
+        //re-enable buttons
+        mainMenuOptions.forEach(button -> {
+            button.setTouchable(Touchable.enabled);
+        });
+    }
+
+    /**
+     * Gets called when the Join Form is submitted<br>
+     * It will switch to the game screen in Client mode
+     * @param ip the ip of the host server
+     */
+    public void joinGame(String ip){
+        game.changeScreen(new GameScreen(game, Settings.getInstance().getKeyValue(Settings.Key.PLAYER_NAME), ip));
+    }
+
+    /**
+     * Action of the Host Button<br>
+     * Switches to the game screen in host mode
+     */
+    public void hostGame(){
+        game.changeScreen(new GameScreen(game, Settings.getInstance().getKeyValue(Settings.Key.PLAYER_NAME)));
     }
 
     @Override
@@ -124,14 +202,13 @@ public class MainMenuScreen implements Screen {
 
         ScreenUtils.clear(backgroundColor);
 
-//        stage.getBatch().begin();
-//        stage.getBatch().draw(Card.BLUE_0.getTexture(), 0, 0, 1600, 900);
-//        stage.getBatch().end();
-
         stage.act(delta);
         stage.draw();
     }
 
+    /**
+     * Terminates the program
+     */
     public void closeApplication()
     {
         this.dispose();
@@ -139,6 +216,10 @@ public class MainMenuScreen implements Screen {
         System.exit(0);
     }
 
+    /**
+     * Executes Keyboard/Controller inputs that occurred since the last frame
+     * @param delta time since the last frame in ms
+     */
     public void controls(float delta)
     {
         if(Gdx.input.isKeyJustPressed(Input.Keys.F11))
@@ -153,9 +234,14 @@ public class MainMenuScreen implements Screen {
             }
         }
 
+        if(Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_DIVIDE))
+        {
+            game.changeScreen(new TestScreen(game));
+        }
+
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1))
         {
-            mainTable.setDebug(!mainTable.getDebug());
+            stage.setDebugAll(!stage.isDebugAll());
         }
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
         {
