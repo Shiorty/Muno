@@ -115,8 +115,6 @@ public class Server extends Thread{
                 playerID
             ));
 
-            reconfigureCurrentPlayerSequence();
-
             connection.start();
         }
     }
@@ -169,19 +167,17 @@ public class Server extends Thread{
         newPlayer.setName(name);
 
         List<PlayerInfo> playerInfos = players.stream()
-                                    .filter((player) -> player.getPlayerID() != id)
                                     .map(Player::getPlayerInfo)
                                     .collect(Collectors.toList());
 
         newPlayer.getConnection().sendInitResponse(lastPlayedCard, playerInfos, newPlayer.getCards());
 
-        for(Player player : players){
-            if(player.getPlayerID() == newPlayer.getPlayerID()){
-                continue;
-            }
+        reconfigureCurrentPlayerSequence();
 
+        players.forEach(player -> {
             player.getConnection().sendPlayerJoined(newPlayer.getPlayerInfo());
-        }
+            player.getConnection().sendCurrentPlayerUpdate(getCurrentPlayerID());
+        });
     }
 
     public void playerLeft(int id) {
@@ -196,6 +192,7 @@ public class Server extends Thread{
 
         players.forEach(player -> {
             player.getConnection().sendPlayerLeft(playerThatWantsToLeave.getPlayerInfo());
+            player.getConnection().sendCurrentPlayerUpdate(getCurrentPlayerID());
         });
 
     }
@@ -272,14 +269,9 @@ public class Server extends Thread{
         currentPlayer.cards.add(newCard);
         currentPlayer.connection.sendDrawnCard(newCard);
 
-        for(Player player : players)
-        {
-            if(player.getPlayerID() == currentPlayer.getPlayerID()){
-                continue;
-            }
-
+        players.forEach(player -> {
             player.connection.sendPlayerUpdate(currentPlayer.getPlayerInfo());
-        }
+        });
 
         currentPlayerIndex.nextValue();
         players.forEach(player -> {

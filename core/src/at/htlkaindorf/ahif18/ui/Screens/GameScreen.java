@@ -276,6 +276,9 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
                     .map(PlayerScrollElement::new)
                     .collect(Collectors.toList());
 
+            scrollElements.stream().filter(scrollElements -> scrollElements.getPlayer().getPlayerID() == client.getPlayerID()).findFirst().ifPresent(player -> player.setLocalPlayer(true));
+            scrollElements.stream().filter(scrollElements -> scrollElements.getPlayer().getPlayerID() == nwb.getCurrentPlayerID()).findFirst().ifPresent(player -> player.setCurrentPlayer(true));
+
             scrollTable.clear();
 
             scrollElements.forEach(element -> {

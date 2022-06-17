@@ -149,18 +149,12 @@ public class Client extends Thread implements MessageConverter.ServerMessageList
     @Override
     public void receiveCardPlayed(PlayerInfo player, Card card) {
         networkBuffer.setLastPlayedCard(card);
+        networkBuffer.playerUpdate(player);
 
         if(this.playerID == player.getPlayerID())
         {
             //THATS ME!
             networkBuffer.removeCard(card);
-        }
-        else
-        {
-            //Thats not me :(
-            //System.out.println("Thats not me :(");
-
-            networkBuffer.playerUpdate(player);
         }
     }
 
