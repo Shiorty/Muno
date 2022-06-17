@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * Provides Static methods to create and receive different Message Types
  *
+ * <br><br>
  * Last Changed: 2022-06-16
  * @author Andreas Kurz, Jan Mandl
  */
@@ -40,26 +41,63 @@ public class MessageConverter {
         CURRENT_PLAYER_UPDATE //contains information about who is currently in possession of the ability to lay down cards on the table or otherwise interact with various gameplay elements to progress the game
     }
 
+    /**
+     * Method used to send the Request Type
+     * @param outputStream destination of the Request
+     * @param type Request Type to be sent
+     * @throws IOException when a network error occurs
+     */
     private static void sendRequestType(OutputStream outputStream, MessageType type) throws IOException
     {
         ByteDealer.sendString(outputStream, type.name());
     }
 
+    /**
+     * Method used to receive a Request Type<br>
+     * Blocks the thread until a RequestType is received
+     * @param stream data source
+     * @return the request type
+     * @throws IOException when a network error occurs
+     */
     private static MessageType getRequestType(InputStream stream) throws IOException
     {
         String headerString = ByteDealer.receiveString(stream);
         return MessageType.valueOf(headerString);
     }
 
-
+    /**
+     * Gets notified of a Client Request
+     */
     public interface ClientMessageListener{
+        /**
+         * Gets called when a client connects
+         * @param playerName the name of the player
+         */
         void receiveInit(String playerName);
+
+        /**
+         * Gets called when a client wants to disconnect
+         */
         void receiveEnd();
-        void receiveTalk(String message);
+
+        /**
+         * Gets called when a client wants to play a card
+         * @param cardPlayed card to be played
+         */
         void receiveCardPlayed(Card cardPlayed);
+
+        /**
+         * Gets called when a client draws a card
+         */
         void receiveDrawCard();
     }
 
+    /**
+     * Receives and handles client request
+     * @param listener decides how to handle the request
+     * @param inputStream data source
+     * @throws IOException when a network error occurs
+     */
     public static void receiveClientRequest(ClientMessageListener listener, InputStream inputStream) throws IOException
     {
         MessageType type = getRequestType(inputStream);
@@ -75,11 +113,6 @@ public class MessageConverter {
                 listener.receiveEnd();
                 break;
 
-            case TALK:
-                String message = ByteDealer.receiveString(inputStream);
-                listener.receiveTalk(message);
-                break;
-
             case CARD_PLAYED:
                 Card cardPlayed = ByteDealer.receiveCard(inputStream);
                 listener.receiveCardPlayed(cardPlayed);
@@ -91,17 +124,63 @@ public class MessageConverter {
         }
     }
 
+    /**
+     * Gets notified of a ServerMessage
+     */
     public interface ServerMessageListener{
+        /**
+         * Handles the server init response
+         * @param playerID the ID of the player
+         * @param lastPlayedCard the last played card
+         * @param cards the card of the player
+         * @param playerInfos playerInfo of all players
+         */
         void receiveInit(int playerID, Card lastPlayedCard, List<Card> cards, List<PlayerInfo> playerInfos);
+
+        /**
+         * Handles Server information that another player joined
+         * @param newPlayer information about the new player
+         */
         void receivePlayerJoined(PlayerInfo newPlayer);
+
+        /**
+         * Handles Server information that another player left the game
+         * @param deadPlayer information about the effected player
+         */
         void receivePlayerLeft(PlayerInfo deadPlayer);
-        void receiveTalk(String message);
+
+        /**
+         * Handles Server information that a player played a card
+         * @param player the effected player
+         * @param card card which has been played
+         */
         void receiveCardPlayed(PlayerInfo player, Card card);
+
+        /**
+         * Handles Server information about the card that has been drawn
+         * @param card the card that has been drawn
+         */
         void receiveCardDrawn(Card card);
+
+        /**
+         * Handles Server Request about the update of player information
+         * @param playerInfo the updated player information
+         */
         void receivePlayerUpdate(PlayerInfo playerInfo);
+
+        /**
+         * Handles Sever information about the current player changing
+         * @param currentPlayer the new current player
+         */
         void receiveCurrentPlayerUpdate(int currentPlayer);
     }
 
+    /**
+     * Receives and handles Server request
+     * @param listener decides how to handle the request
+     * @param inputStream data source
+     * @throws IOException when a network error occurs
+     */
     public static void receiveServerRequest(ServerMessageListener listener, InputStream inputStream) throws IOException
     {
         MessageType type = getRequestType(inputStream);
@@ -124,11 +203,6 @@ public class MessageConverter {
             case PLAYER_LEAVE:
                 PlayerInfo deadPlayer = ByteDealer.receivePlayerInfo(inputStream);
                 listener.receivePlayerLeft(deadPlayer);
-                break;
-
-            case TALK:
-                String message = ByteDealer.receiveString(inputStream);
-                listener.receiveTalk(message);
                 break;
 
             case CARD_PLAYED:
@@ -154,30 +228,48 @@ public class MessageConverter {
         }
     }
 
-    public static void sendTalk(OutputStream stream, String message) throws IOException
-    {
-        sendRequestType(stream, MessageType.TALK);
-        ByteDealer.sendString(stream, message);
-    }
 
+    //---- Client ----//
 
+    /**
+     * Sends an init message to the server
+     * @param stream the destination
+     * @param name the name of the player
+     * @throws IOException when a network error occurs
+     */
     public static void sendClientInit(OutputStream stream, String name) throws IOException
     {
         sendRequestType(stream, MessageType.INIT);
         ByteDealer.sendString(stream, name);
     }
 
+    /**
+     * Sends an End message to the server
+     * @param stream the destination
+     * @throws IOException when a network error occurs
+     */
     public static void sendClientEnd(OutputStream stream) throws IOException
     {
         sendRequestType(stream, MessageType.END);
     }
 
+    /**
+     * Sends a Card Played message to the server
+     * @param stream the destination
+     * @param card the card that has been played
+     * @throws IOException when a network error occurs
+     */
     public static void sendClientCardPlayed(OutputStream stream, Card card) throws IOException
     {
         sendRequestType(stream, MessageType.CARD_PLAYED);
         ByteDealer.sendCard(stream, card);
     }
 
+    /**
+     * Requests to draw a card
+     * @param stream the destination
+     * @throws IOException when a network error occurs
+     */
     public static void sendClientDrawCard(OutputStream stream) throws IOException
     {
         sendRequestType(stream, MessageType.DRAW_CARD);
@@ -186,6 +278,13 @@ public class MessageConverter {
 
 
     //--- Server ----//
+    /**
+     * Sends information that a card has been played
+     * @param stream the destination
+     * @param currentPlayer the player who played the card
+     * @param card the card that has been played
+     * @throws IOException when a network error occurs
+     */
     public static void sendServerCardPlayer(OutputStream stream, PlayerInfo currentPlayer, Card card) throws IOException
     {
         sendRequestType(stream, MessageType.CARD_PLAYED);
@@ -193,7 +292,16 @@ public class MessageConverter {
         ByteDealer.sendCard(stream, card);
     }
 
-    public static void sendServerInit(int playerID, OutputStream stream, Card lastPlayedCard, List<PlayerInfo> otherPlayers, ArrayList<Card> cards) throws IOException
+    /**
+     * Sends a Init reply to the client
+     * @param playerID the ID of the client
+     * @param stream the destination of the message
+     * @param lastPlayedCard the card that has last been played
+     * @param otherPlayers information about all players
+     * @param cards the cards of the player
+     * @throws IOException when a network error occurs
+     */
+    public static void sendServerInit(int playerID, OutputStream stream, Card lastPlayedCard, List<PlayerInfo> otherPlayers, List<Card> cards) throws IOException
     {
         sendRequestType(stream, MessageType.INIT);
         ByteDealer.sendInt(stream, playerID);
@@ -202,30 +310,60 @@ public class MessageConverter {
         ByteDealer.sendPlayerInfoList(stream, otherPlayers);
     }
 
+    /**
+     * Sends the information that a Client has joined the game
+     * @param stream the destination
+     * @param otherPlayers information about the new client
+     * @throws IOException when a network error occurs
+     */
     public static void sendServerPlayerJoined(OutputStream stream, PlayerInfo otherPlayers) throws IOException
     {
         sendRequestType(stream, MessageType.PLAYER_JOINED);
         ByteDealer.sendPlayerInfo(stream, otherPlayers);
     }
 
+    /**
+     * Sends the information that a Client has left the game
+     * @param stream the destination of the message
+     * @param player information about the leaving player
+     * @throws IOException when a network error occurs
+     */
     public static void sendServerPlayerLeft(OutputStream stream, PlayerInfo player) throws IOException
     {
         sendRequestType(stream, MessageType.PLAYER_LEAVE);
         ByteDealer.sendPlayerInfo(stream, player);
     }
 
+    /**
+     * Sends which card has been drawn
+     * @param stream the destination of the message
+     * @param card the card that has been drawn by the client
+     * @throws IOException when a network error occurs
+     */
     public static void sendServerDrawCard(OutputStream stream, Card card) throws IOException
     {
         sendRequestType(stream, MessageType.DRAW_CARD);
         ByteDealer.sendCard(stream, card);
     }
 
+    /**
+     * Sends updated information about a particular client
+     * @param stream the destination of the message
+     * @param playerInfo updated information about the client
+     * @throws IOException when a network error occurs
+     */
     public static void senderServerPlayerUpdate(OutputStream stream, PlayerInfo playerInfo) throws IOException
     {
         sendRequestType(stream, MessageType.PLAYER_UPDATE);
         ByteDealer.sendPlayerInfo(stream, playerInfo);
     }
 
+    /**
+     * Sends who is currently in possession of the ability to lay down cards on the table or otherwise interact with various gameplay elements to progress the game
+     * @param stream the destination of the messsage
+     * @param currentPlayerID the player id of the new current client
+     * @throws IOException when a network error occurs
+     */
     public static void sendServerCurrentPlayerUpdate(OutputStream stream, int currentPlayerID) throws IOException
     {
         sendRequestType(stream, MessageType.CURRENT_PLAYER_UPDATE);

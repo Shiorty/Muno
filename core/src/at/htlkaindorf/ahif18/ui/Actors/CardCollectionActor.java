@@ -17,16 +17,31 @@ import java.util.List;
 
 /**
  * Displays the cards held be the player
- * <br>
- * Last changed: 2022-06-16
+ *
+ * <br><br>
+ * Last changed: 2022-06-17
  * @author Jan Mandl; Andreas Kurz
  */
 public class CardCollectionActor extends Actor {
 
+    private static final float CARD_WIDTH = 100;
+    private static final float CARD_HEIGHT = CARD_WIDTH / 2 * 3;
+
+    /**
+     * Interface that gets notified when a card ist clicked
+     */
     public interface CardClickedListener{
+        /**
+         * Gets called when a card is clicked
+         * @param collection the originator of this event
+         * @param index the index of the card clicked
+         */
         void cardClicked(CardCollectionActor collection, int index);
     }
 
+    /**
+     * Data Class that stores information about each card held
+     */
     private static class CardInfo {
         Card card;
         Rectangle hitBox;
@@ -39,32 +54,35 @@ public class CardCollectionActor extends Actor {
         }
     }
 
-    private final float CARD_WIDTH = 100;
-    private final float CARD_HEIGHT = CARD_WIDTH / 2 * 3;
+    //List of cards currently held by player
     private List<CardInfo> cards;
 
+    @Setter
     private CardClickedListener cardClickedListener;
 
+    //stores if the cards can be played / highlighted
     @Getter
     @Setter
     private boolean active = true;
 
     public CardCollectionActor(CardClickedListener listener) {
         cardClickedListener = listener;
-
         cards = new ArrayList<>();
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha){
         if(!active){
+            //set the batch to draw with transparency
             batch.setColor(255, 255, 255,0.5f);
         }
 
+        //Draw cards
         for(CardInfo ca : cards) {
             DrawUtils.drawCard(batch, ca.card, ca.hitBox.x + getXOffset(), ca.hitBox.y, ca.hitBox.width);
         }
 
+        //Draw outline for focused cards
         for(CardInfo ca : cards) {
             if(ca.isFocused) {
                 DrawUtils.drawRectangleOutline(batch, Color.YELLOW, ca.hitBox.x + getXOffset(), ca.hitBox.y, ca.hitBox.width, ca.hitBox.height);
@@ -72,6 +90,10 @@ public class CardCollectionActor extends Actor {
         }
     }
 
+    /**
+     * Changes the cards currently displayed to a new Card List
+     * @param cardList the cards to be displayed
+     */
     public void setCards(List<Card> cardList) {
         cards.clear();
         for(Card c : cardList) {
@@ -79,6 +101,10 @@ public class CardCollectionActor extends Actor {
         }
     }
 
+    /**
+     * Adds a single Card to the collection
+     * @param c Card to be added
+     */
     public void addCard(Card c) {
         //counter for going through all the cards to
         //count all the widths together
@@ -100,6 +126,10 @@ public class CardCollectionActor extends Actor {
         cards.add(unoCard);
     }
 
+    /**
+     * Removes a single card from the collection
+     * @param cardIndex Index of the card to be removed
+     */
     public void removeCard(int cardIndex)
     {
         CardInfo c = cards.remove(cardIndex);
@@ -110,12 +140,20 @@ public class CardCollectionActor extends Actor {
         }
     }
 
+    /**
+     * Gets the Card stored at a specific index
+     * @param cardIndex index of the card
+     * @return the card identified by the index
+     */
     public Card getCard(int cardIndex) {
         return cards.get(cardIndex).card;
     }
 
-    //Get X Offset of the first card
-    //Is used to center the cards
+    /**
+     * Get X Offset of the first card<br>
+     * Is used to center the cards
+     * @return the x offset of the cards
+     */
     public float getXOffset(){
         return (this.getWidth() - this.cards.size() * CARD_WIDTH) / 2;
     }

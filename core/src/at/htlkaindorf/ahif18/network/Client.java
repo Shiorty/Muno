@@ -14,6 +14,7 @@ import java.util.List;
  * Connection from Client to Server
  * Sending and Receiving are handled in seperate threads
  *
+ * <br><br>
  * Last changed: 2022-06-16
  * @author Andreas Kurz; Jan Mandl
  */
@@ -33,11 +34,13 @@ public class Client extends Thread implements MessageConverter.ServerMessageList
     @Getter
     private int playerID;
 
-
-    public Client(NetworkBuffer nwb){
-        this(nwb, "I <3 cats", DEFAULT_IP);
-    }
-
+    /**
+     * Creates a new Client
+     * @param nwb NetworkBuffer that gets written to
+     * @param name The Player Name of the client
+     * @param hostIP the hostIP to connect to
+     *               if omitted will use the Loopback interface
+     */
     public Client(NetworkBuffer nwb, String name, String hostIP){
         networkBuffer = nwb;
 
@@ -48,38 +51,27 @@ public class Client extends Thread implements MessageConverter.ServerMessageList
 
     @Override
     public void run() {
-        try {
-            startClient();
-        } catch (Exception e) {
+        try
+        {
+            serverConnection = new Socket(hostIP, Server.PORT);
+            receiveThread = new Thread(this::receiveTask);
+            receiveThread.start();
+
+            MessageConverter.sendClientInit(serverConnection.getOutputStream(), name);
+
+            while(!isInterrupted())
+            {
+                sendTasks.pop().execute();
+            }
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @SneakyThrows
-    @Override
-    public void interrupt() {
-        //System.out.println("Client interrupted");
-
-        if(serverConnection != null && serverConnection.isConnected()){
-            serverConnection.close();
-        }
-        super.interrupt();
-    }
-
-    public void startClient() throws Exception
-    {
-        serverConnection = new Socket(hostIP, Server.PORT);
-        receiveThread = new Thread(this::receiveTask);
-        receiveThread.start();
-
-        MessageConverter.sendClientInit(serverConnection.getOutputStream(), name);
-
-        while(!isInterrupted())
-        {
-            sendTasks.pop().execute();
-        }
-    }
-
+    /**
+     * Starts an infinite Receive Loop
+     */
     public void receiveTask()
     {
         try
@@ -95,23 +87,46 @@ public class Client extends Thread implements MessageConverter.ServerMessageList
         }
     }
 
+    @SneakyThrows
+    @Override
+    public void interrupt() {
+        //System.out.println("Client interrupted");
+
+        if(serverConnection != null && serverConnection.isConnected()){
+            serverConnection.close();
+        }
+        super.interrupt();
+    }
+
+    /**
+     * Sends the card played message to the server
+     * @param card Card to be played
+     */
     public void playCard(Card card) {
         sendTasks.push(() -> {
             MessageConverter.sendClientCardPlayed(serverConnection.getOutputStream(), card);
         });
     }
 
+    /**
+     * Asks the Server to Draw a Card
+     */
     public void drawCard(){
         sendTasks.push(() -> {
             MessageConverter.sendClientDrawCard(serverConnection.getOutputStream());
         });
     }
 
+    /**
+     * Sends the server the End Message
+     */
     public void leave(){
         sendTasks.push(() -> {
             MessageConverter.sendClientEnd(serverConnection.getOutputStream());
         });
     }
+
+    //----- Receive Methods -----//
 
     @Override
     public void receiveInit(int playerID, Card lastPlayedCard, List<Card> cards, List<PlayerInfo> otherPlayers) {
@@ -120,14 +135,6 @@ public class Client extends Thread implements MessageConverter.ServerMessageList
         networkBuffer.setCards(cards);
         networkBuffer.setLastPlayedCard(lastPlayedCard);
         networkBuffer.setPlayers(otherPlayers);
-
-        //System.out.println("Client:receivedInit -> ID: " + playerID + ": " + otherPlayers);
-
-        //System.out.println("Client: " + Thread.currentThread().getName());
-
-        //System.out.println(message + " " + lastPlayedCard);
-        //System.out.println(message + " " + cards);
-        //System.out.println(message + " " + otherPlayers);
     }
 
     @Override
@@ -139,11 +146,6 @@ public class Client extends Thread implements MessageConverter.ServerMessageList
     @Override
     public void receivePlayerLeft(PlayerInfo deadPlayer) {
         networkBuffer.removePlayer(deadPlayer);
-    }
-
-    @Override
-    public void receiveTalk(String message) {
-        System.out.println(message);
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 /**
  * Contains various methods for drawing Elements on Screen
  *
+ * <br><br>
  * Last changed: 2022-06-17
  * @author Andreas Kurz
  */

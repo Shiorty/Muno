@@ -7,6 +7,7 @@ import java.util.Random;
 /**
  * Saves all the Card types and the corresponding<br>
  * paths to their textures.
+ *
  * <br><br>
  * Last changed: 2022-06-03
  * @author Jan Mandl, Kurz Andreas

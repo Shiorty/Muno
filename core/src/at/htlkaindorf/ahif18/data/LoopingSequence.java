@@ -3,6 +3,7 @@ package at.htlkaindorf.ahif18.data;
 /**
  * Is used to get a sequence of repeating numbers.
  *
+ * <br><br>
  * Last changed: 2022-06-13
  * @author Jan Mandl
  */

@@ -4,6 +4,7 @@ package at.htlkaindorf.ahif18.data;
  * The Groups the Cards belong to. Two cards sharing a group means that they
  * are allowed to be laid on top of each other.
  *
+ * <br><br>
  * Last changed: 2022-05-16
  * @author Jan Mandl
  */

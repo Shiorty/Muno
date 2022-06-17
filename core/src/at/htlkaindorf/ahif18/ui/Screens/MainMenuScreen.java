@@ -24,6 +24,13 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+/**
+ * Displays the main Menu of the game
+ *
+ * <br><br>
+ * Last changed: 2022-06-17
+ * @author Andreas Kurz; Jan Mandl
+ */
 public class MainMenuScreen implements Screen {
 
     private MunoGame game;
@@ -136,14 +143,17 @@ public class MainMenuScreen implements Screen {
         joinForm.setColor(formColor);
         joinForm.setZIndex(1000);
         joinForm.setVisible(true);
-        joinForm.setOnCloseListener(this::closeJoinForm);
-        joinForm.setFormSubmitListener(this::joinGame);
+        joinForm.addOnCloseListener(this::closeJoinForm);
+        joinForm.addFormSubmitListener(this::joinGame);
 
         //Add table to stage
         stage.addActor(mainTable);
         stage.addActor(joinForm);
     }
 
+    /**
+     * Opens the Form used to join different games
+     */
     public void openJoinForm(){
 //        joinForm.setVisible(true);
         joinForm.addAction(Actions.moveTo(MunoGame.SCREEN_SIZE[0]/2 - 250 , MunoGame.SCREEN_SIZE[1]/2 - 150, 0.5f));
@@ -155,6 +165,9 @@ public class MainMenuScreen implements Screen {
         });
     }
 
+    /**
+     * Closes the Form used to join different games
+     */
     public void closeJoinForm(){
 //        joinForm.setVisible(false);
         joinForm.addAction(Actions.moveTo(MunoGame.SCREEN_SIZE[0]/2 - 250 , -300, 0.5f));
@@ -165,10 +178,19 @@ public class MainMenuScreen implements Screen {
         });
     }
 
+    /**
+     * Gets called when the Join Form is submitted<br>
+     * It will switch to the game screen in Client mode
+     * @param ip the ip of the host server
+     */
     public void joinGame(String ip){
         game.changeScreen(new GameScreen(game, Settings.getInstance().getKeyValue(Settings.Key.PLAYER_NAME), ip));
     }
 
+    /**
+     * Action of the Host Button<br>
+     * Switches to the game screen in host mode
+     */
     public void hostGame(){
         game.changeScreen(new GameScreen(game, Settings.getInstance().getKeyValue(Settings.Key.PLAYER_NAME)));
     }
@@ -184,6 +206,9 @@ public class MainMenuScreen implements Screen {
         stage.draw();
     }
 
+    /**
+     * Terminates the program
+     */
     public void closeApplication()
     {
         this.dispose();
@@ -191,16 +216,12 @@ public class MainMenuScreen implements Screen {
         System.exit(0);
     }
 
+    /**
+     * Executes Keyboard/Controller inputs that occurred since the last frame
+     * @param delta time since the last frame in ms
+     */
     public void controls(float delta)
     {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
-            openJoinForm();
-        }
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)){
-            closeJoinForm();
-        }
-
         if(Gdx.input.isKeyJustPressed(Input.Keys.F11))
         {
             Graphics.DisplayMode currentMode = Gdx.graphics.getDisplayMode();
@@ -211,6 +232,11 @@ public class MainMenuScreen implements Screen {
             else{
                 Gdx.graphics.setFullscreenMode(currentMode);
             }
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_DIVIDE))
+        {
+            game.changeScreen(new TestScreen(game));
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.F1))

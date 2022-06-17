@@ -15,6 +15,7 @@ import lombok.Setter;
 /**
  * Represents a player in the scroll area
  *
+ * <br><br>
  * Last changed: 2022-06-17
  * @author Jan Mandl, Andreas Kurz
  */
@@ -65,6 +66,10 @@ public class PlayerScrollElement extends Group {
         table.setDebug(enabled);
     }
 
+    /**
+     * Get the current Background color based upon the current state of the object
+     * @return the current background color
+     */
     public Color getCurrentBackgroundColor(){
         return isLocalPlayer ? LOCAL_PLAYER_COLOR : DEFAULT_BACKGROUND_COLOR;
     }

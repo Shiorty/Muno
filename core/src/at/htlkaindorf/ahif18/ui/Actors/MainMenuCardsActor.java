@@ -12,6 +12,7 @@ import static at.htlkaindorf.ahif18.ui.DrawUtils.drawCardCentered;
  * Displays multiple cards<br>
  * The number of cards should never be even!
  *
+ * <br><br>
  * Last changed: 2022-04-24
  * @author Andreas Kurz
  */

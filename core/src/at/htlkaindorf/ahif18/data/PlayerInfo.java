@@ -6,9 +6,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 /**
  * Saves the information about the players that are<br>
  * needed for the client to display the list of players in<br>
@@ -17,6 +14,9 @@ import java.util.Objects;
  * Last changed: 2022-06-13
  * @author Jan Mandl
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PlayerInfo {
     private int playerID;
     private String playerName;

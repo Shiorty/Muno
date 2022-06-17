@@ -13,13 +13,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Server Thread handling new Clients
  * When a new client connects a new ClientConnection Thread is opened
  *
+ * <br><br>
  * Last changed: 2022-06-16
  * @author Andreas Kurz; Jan Mandl
  */
@@ -28,15 +29,18 @@ public class Server extends Thread{
     public static final int PORT = 60000;
     public static final int DEFAULT_CARD_AMOUNT = 7;
 
+    /**
+     * Class containing information about a player
+     */
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    private class Player
+    private static class Player
     {
         private ClientConnection connection;
         private String name;
         private int playerID;
-        private ArrayList<Card> cards;
+        private List<Card> cards;
 
         public Player(ClientConnection connection, int playerID){
             this.connection = connection;
@@ -44,16 +48,22 @@ public class Server extends Thread{
             generateNewCards(DEFAULT_CARD_AMOUNT);
         }
 
+        /**
+         * Generates a new deck for the player
+         * @param amount amount of cards
+         */
         public void generateNewCards(int amount)
         {
-            Random r = new Random();
-
-            cards  = new ArrayList<>(amount);
-            for(int i = 0; i < amount; i++){
-                cards.add(Card.randomCard());
-            }
+            cards = IntStream
+                    .range(0, amount)
+                    .mapToObj(i -> Card.randomCard())
+                    .collect(Collectors.toList());
         }
 
+        /**
+         * Returns a PlayerInfo object containting all the information about the client
+         * @return information about the player
+         */
         public PlayerInfo getPlayerInfo()
         {
             return new PlayerInfo(playerID, name, cards.size());
@@ -78,16 +88,6 @@ public class Server extends Thread{
         lastPlayedCard = Card.randomCard();
     }
 
-    @Override
-    public void run()
-    {
-        try {
-            runServer();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
-
     @SneakyThrows
     @Override
     public void interrupt() {
@@ -98,6 +98,23 @@ public class Server extends Thread{
         super.interrupt();
     }
 
+    @Override
+    public void run()
+    {
+        try
+        {
+            runServer();
+        }
+        catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    /**
+     * Starts the server thread<br>
+     * The server thread will wait for a client to connect
+     * @throws Exception when an error occurs
+     */
     public void runServer() throws Exception
     {
         socket = new ServerSocket(PORT);
@@ -119,6 +136,10 @@ public class Server extends Thread{
         }
     }
 
+    /**
+     * Creates a new Player Sequence Object<br>
+     * should always be called when the number of player changes
+     */
     private void reconfigureCurrentPlayerSequence()
     {
         int currentIndex = currentPlayerIndex.currentValue();
@@ -138,12 +159,22 @@ public class Server extends Thread{
         );
     }
 
+    /**
+     * Searches for the player object with a certain ID
+     * @param id the ID of the player
+     * @return the player object representing the player
+     */
     private Player findPlayerOfID(int id){
         return players.stream().filter(player ->
             id == player.getPlayerID()
         ).findFirst().get();
     }
 
+    /**
+     * Searches for the index that the player object is located at
+     * @param id the id of the player
+     * @return the index of the player
+     */
     private int findIndexOfPlayer(int id){
         for(int i = 0; i < players.size(); i++)
         {
@@ -156,12 +187,22 @@ public class Server extends Thread{
         return -1;
     }
 
+    /**
+     * Gets the ID of the player who's turn it currently is
+     * @return the id of the current player
+     */
     public int getCurrentPlayerID(){
         return players.get(currentPlayerIndex.currentValue()).getPlayerID();
     }
 
     // --- Player Triggered Events --- //
 
+    /**
+     * Handles a player Join Event<br>
+     * Replies to the player and informs all other players
+     * @param id the id of the new player
+     * @param name the name of the new player
+     */
     public void playerJoined(int id, String name){
         Player newPlayer = findPlayerOfID(id);
         newPlayer.setName(name);
@@ -180,6 +221,10 @@ public class Server extends Thread{
         });
     }
 
+    /**
+     * Informs all other players about the player leaving
+     * @param id the id of the leaving player
+     */
     public void playerLeft(int id) {
 
         Player playerThatWantsToLeave = findPlayerOfID(id);
@@ -197,6 +242,12 @@ public class Server extends Thread{
 
     }
 
+    /**
+     * Decides if a card can be played<br>
+     * Also replies to all clients if the card has been played
+     * @param id the id of the player wanting to play a card
+     * @param cardPlayed the card that the player wants to plays
+     */
     public void cardPlayed(int id, Card cardPlayed) {
 
         int playerIndex = findIndexOfPlayer(id);
@@ -253,6 +304,11 @@ public class Server extends Thread{
         });
     }
 
+    /**
+     * Decides if a player can play a card<br>
+     * It then answers the player and informs all the other players
+     * @param playerID id of the payer wanting to draw a card
+     */
     public void drawCard(int playerID) {
 
         Player currentPlayer = findPlayerOfID(playerID);

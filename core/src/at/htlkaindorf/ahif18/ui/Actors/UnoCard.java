@@ -10,7 +10,8 @@ import static at.htlkaindorf.ahif18.ui.DrawUtils.drawCard;
 
 /**
  * GUI class that is used to represent single Uno cards.
- * <br>
+ *
+ * <br><br>
  * Last changed: 2022-06-16
  * @author Jan Mandl, Andreas Kurz
  */

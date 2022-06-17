@@ -10,7 +10,8 @@ import java.util.List;
 /**
  * Networkbuffer is a class that saves(buffers) what comes from the network<br>
  * and provides it to the other parts of the program.<br>
- * <br>
+ *
+ * <br><br>
  * Last changed: 2022-06-16
  * @author Jan Mandl
  */
@@ -52,6 +53,23 @@ public class NetworkBuffer {
     }
 
     /**
+     * Adds a new Observer
+     * @param other the observer
+     */
+    public void addObserver(I_Notifiable other) {
+        this.observers.add(other);
+    }
+
+    /**
+     * Notifies all observer about the changing of information
+     */
+    public void notifyObservers() {
+        for(I_Notifiable u : observers) {
+            u.notifyElement();
+        }
+    }
+
+    /**
      * Find the index of the given player
      * @param id the id of the player
      * @return the index of the player; -1 if the ID is not present
@@ -68,12 +86,20 @@ public class NetworkBuffer {
         return -1;
     }
 
+    /**
+     * Sets the ID of the current player
+     * @param playerID id of the new current player
+     */
     public void setCurrentPlayerID(int playerID)
     {
         this.currentPlayerID = playerID;
         notifyObservers();
     }
 
+    /**
+     * Returns the ID of the current player
+     * @return a player ID
+     */
     public int getCurrentPlayerID()
     {
         return this.currentPlayerID;
@@ -87,31 +113,55 @@ public class NetworkBuffer {
     public List<PlayerInfo> fetchAllPlayers() {
         return playerList;
     }
-	
+
+    /**
+     * Returns a List of all cards currently in possession of the player
+     * @return all the players cards
+     */
     public List<Card> fetchAllCards() {
         return cards;
     }
 
+    /**
+     * changes the cards of the player
+     * @param cards the new cards to be used
+     */
     public void setCards(List<Card> cards) {
         this.cards = cards;
         notifyObservers();
     }
 
+    /**
+     * Removes a single card of the player
+     * @param card the card to be removed
+     */
     public void removeCard(Card card){
         this.cards.remove(card);
         notifyObservers();
     }
 
+    /**
+     * Adds a single card to the hand of the player
+     * @param card the card to be addeds
+     */
     public void addCard(Card card){
         this.cards.add(card);
         notifyObservers();
     }
 
+    /**
+     * Sets the Card that has last been played
+     * @param lastPlayedCard the new value
+     */
     public void setLastPlayedCard(Card lastPlayedCard){
         this.lastPlayedCard = lastPlayedCard;
         notifyObservers();
     }
-  
+
+    /**
+     * sets the information about all players
+     * @param players the new information
+     */
     public void setPlayers(List<PlayerInfo> players) {
         this.playerList = players;
         notifyObservers();
@@ -147,22 +197,13 @@ public class NetworkBuffer {
     }
 
     /**
-     * Updates the Information on a given Player.
+     * Updates the Information on a given Player
+     * @param playerInfo updated information about a player
      */
     public void playerUpdate(PlayerInfo playerInfo) {
         int index = findIndexOfPlayer(playerInfo.getPlayerID());
         playerList.set(index, playerInfo);
 
         notifyObservers();
-    }
-
-    public void addObserver(I_Notifiable other) {
-        this.observers.add(other);
-    }
-
-    public void notifyObservers() {
-        for(I_Notifiable u : observers) {
-            u.notifyElement();
-        }
     }
 }

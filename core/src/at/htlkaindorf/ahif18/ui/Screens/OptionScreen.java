@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 /**
  * Screen which lets users change their preferences
  *
+ * <br><br>
  * Last changed: 2022-06-16
  * @author Andreas Kurz
  */
@@ -131,10 +132,16 @@ public class OptionScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
     }
 
+    /**
+     * Swaps back to the main menu
+     */
     public void returnToMenu(){
         game.changeScreen(new MainMenuScreen(game));
     }
 
+    /**
+     * Resets all Settings present
+     */
     public void resetSettings(){
         Settings.getInstance().restoreDefaults();
         game.changeScreen(new OptionScreen(game));

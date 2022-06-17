@@ -4,13 +4,24 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
+
+/**
+ * Main for the Desktop Version<br>
+ * Launches a new MunoGame object
+ *
+ * <br><br>
+ * Last changed: 2022-06-16
+ * @author Andreas Kurz
+ */
 public class DesktopLauncher {
-	public static void main (String[] arg) {
+
+	public static void main (String[] arg)
+	{
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 
 		config.setForegroundFPS(60);
 //		 config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
-		// config.setWindowPosition(1700, 900);
+//		 config.setWindowPosition(1700, 900);
 		config.setWindowSizeLimits(160, 90, -1, -1);
 
 		if(arg.length >= 1){

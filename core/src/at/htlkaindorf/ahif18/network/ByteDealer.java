@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Contains static methods to send and receive data from the network
  *
+ * <br><br>
  * Last changed: 2022-06-03
  * @author Andreas Kurz, Jan Mandl
  */
@@ -23,8 +24,8 @@ public class ByteDealer {
      * Blocks the thread until all bytes have been read
      * @param stream stream to be read from
      * @param n amount of bytes to be read
-     * @return a byte[] containing all of the bytes
-     * @throws IOException
+     * @return a byte[] containing all the bytes
+     * @throws IOException when the InputStream is closed
      */
     public static byte[] readNBytes(InputStream stream, int n) throws IOException
     {
@@ -43,11 +44,24 @@ public class ByteDealer {
         return bytes;
     }
 
+    /**
+     * Sends a single integer over the network
+     * @param stream Destination of the int
+     * @param i integer to be sent
+     * @throws IOException when a network error occurs
+     */
     public static void sendInt(OutputStream stream, int i) throws IOException
     {
         stream.write(ByteConverter.intToBytes(i));
     }
 
+    /**
+     * Reds a single integer from the given InputStream<br>
+     * Blocks until the int has been read
+     * @param stream data source
+     * @return the integer read
+     * @throws IOException when a network error occurs
+     */
     public static int receiveInt(InputStream stream) throws IOException
     {
         return ByteConverter.bytesToInt(readNBytes(stream, 4));
@@ -56,8 +70,8 @@ public class ByteDealer {
     /**
      * Send a string over the network
      * @param stream destination of the string
-     * @param s string to be send
-     * @throws IOException
+     * @param s string to be sent
+     * @throws IOException when a network error occurs
      */
     public static void sendString(OutputStream stream, String s) throws IOException
     {
@@ -69,7 +83,7 @@ public class ByteDealer {
      * Blocks until a string has been read
      * @param stream data source
      * @return the String
-     * @throws IOException
+     * @throws IOException when a network error occurs
      */
     public static String receiveString(InputStream stream) throws IOException
     {
@@ -78,32 +92,34 @@ public class ByteDealer {
     }
 
     /**
-     * Send a String[]
-     * @param stream destination of the data
-     * @param strings allStrings which should be sent
-     * @throws IOException
+     * Sends a Card over the network
+     * @param stream destination of the string
+     * @param card Card to be sent
+     * @throws IOException when a network error occurs
      */
-    public static void sendStringArray(OutputStream stream, String[] strings) throws IOException
-    {
-        byte[] length = ByteConverter.intToBytes(strings.length);
-        stream.write(length);
-
-        for(String s : strings)
-        {
-            sendString(stream, s);
-        }
-    }
-
     public static void sendCard(OutputStream stream, Card card) throws IOException
     {
         sendString(stream, card.name());
     }
 
+    /**
+     * Reads a Card from the InputStream<br>
+     * Blocks until a Card has been read
+     * @param stream data source
+     * @return the Card received
+     * @throws IOException when a network error occurs
+     */
     public static Card receiveCard(InputStream stream) throws IOException
     {
         return Card.valueOf(receiveString(stream));
     }
 
+    /**
+     * Sends a PlayerInfo over the network
+     * @param stream destination of the playerInfo
+     * @param playerInfo PlayerInfo to be sent
+     * @throws IOException when a network error occurs
+     */
     public static void sendPlayerInfo(OutputStream stream, PlayerInfo playerInfo) throws IOException
     {
         sendInt(stream, playerInfo.getPlayerID());
@@ -111,6 +127,13 @@ public class ByteDealer {
         sendInt(stream, playerInfo.getCardAmount());
     }
 
+    /**
+     * Reads a PlayerInfo from the InputStream<br>
+     * Blocks until a PlayerInfo has been read
+     * @param stream data source
+     * @return the PlayerInfo received
+     * @throws IOException when a network error occurs
+     */
     public static PlayerInfo receivePlayerInfo(InputStream stream) throws IOException
     {
         return new PlayerInfo(
@@ -127,14 +150,30 @@ public class ByteDealer {
 //     * @throws IOException
 //     */
 
+    /**
+     * Interface containing a Method to receive an Object of Type T
+     * @param <T> The type that can be received
+     */
     public interface Receiver<T>{
-        public T receive(InputStream stream) throws IOException;
+        T receive(InputStream stream) throws IOException;
     }
 
+    /**
+     * Interface containing a Method to send an Object of Type T
+     * @param <T> The type that can be sent
+     */
     public interface Sender<T>{
-        public void send(OutputStream stream, T element) throws IOException;
+        void send(OutputStream stream, T element) throws IOException;
     }
 
+    /**
+     * Generic method to receive a list of any type
+     * @param stream data source
+     * @param receiver Receiver interface that implements how the items are received
+     * @return the received list
+     * @param <T> the type of the list
+     * @throws IOException when a network error occurs
+     */
     public static <T> List<T> receiveList(InputStream stream, Receiver<T> receiver) throws IOException
     {
         int length = receiveInt(stream);
@@ -148,6 +187,14 @@ public class ByteDealer {
         return values;
     }
 
+    /**
+     * Generic method to send a list of any type
+     * @param stream destination
+     * @param sender specifies how the items are sent over the network
+     * @param list the list to be sent
+     * @param <T> the datatype of the list
+     * @throws IOException when a network error occurs
+     */
     public static <T> void sendList(OutputStream stream, Sender<T> sender, List<T> list) throws IOException {
         ByteDealer.sendInt(stream, list.size());
 
@@ -156,27 +203,63 @@ public class ByteDealer {
         }
     }
 
+    /**
+     * Method used to receive a String List
+     * @param stream data source
+     * @return the list
+     * @throws IOException when a network error occurs
+     */
     public static List<String> receiveStringList(InputStream stream) throws IOException {
         return receiveList(stream, ByteDealer::receiveString);
     }
 
+    /**
+     * Method used to Send a String List
+     * @param stream destination of the list
+     * @param list the list to be sent
+     * @throws IOException when a network error occurs
+     */
     public static void sendStringList(OutputStream stream, List<String> list) throws IOException {
         sendList(stream, ByteDealer::sendString, list);
     }
 
+    /**
+     * Method used to receive a PlayerInfo List
+     * @param stream data source
+     * @return the list
+     * @throws IOException when a network error occurs
+     */
     public static List<PlayerInfo> receivePlayerInfoList(InputStream stream) throws IOException {
         return receiveList(stream, ByteDealer::receivePlayerInfo);
     }
 
+    /**
+     * Method used to Send a PlayerInfo List
+     * @param stream destination of the list
+     * @param list the list to be sent
+     * @throws IOException when a network error occurs
+     */
     public static void sendPlayerInfoList(OutputStream stream, List<PlayerInfo> list) throws IOException {
         sendList(stream, ByteDealer::sendPlayerInfo, list);
     }
 
+    /**
+     * Method used to Send a Card List
+     * @param stream destination of the list
+     * @param list the list to be sent
+     * @throws IOException when a network error occurs
+     */
     public static void sendCardList(OutputStream stream, List<Card> list) throws IOException
     {
         sendStringList(stream, list.stream().map(Card::name).collect(Collectors.toList()));
     }
 
+    /**
+     * Method used to receive a Card List
+     * @param stream data source
+     * @return the list
+     * @throws IOException when a network error occurs
+     */
     public static List<Card> receiveCardList(InputStream stream) throws IOException
     {
         return receiveStringList(stream)

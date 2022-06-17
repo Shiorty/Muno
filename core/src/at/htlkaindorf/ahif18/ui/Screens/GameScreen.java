@@ -32,8 +32,9 @@ import java.util.stream.Collectors;
 
 /**
  * Manages the Uno Game itself and displays everything that is necessary to play it.
- * <br>
- * Last changed: 2022-06-13
+ *
+ * <br><br>
+ * Last changed: 2022-06-17
  * @author Jan Mandl; Andreas Kurz
  */
 public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.CardClickedListener {
@@ -59,11 +60,23 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
     private List<Thread> threads;
     private Client client;
 
+    /**
+     * Creates a new GameScreen which is used to host a game
+     * @param game The Instance of the MunoGame class
+     * @param playerName The name of the player
+     */
     public GameScreen(MunoGame game, String playerName)
     {
         this(game, playerName, null);
     }
 
+    /**
+     * Creates a new GameScreen that is used to join a game
+     * @param game The Instance of the MunoGame class
+     * @param playerName The name of the player
+     * @param hostIP the IP of the server<br>
+     *               The game will be hosted if omitted
+     */
     public GameScreen(MunoGame game, String playerName, String hostIP)
     {
         this.game = game;
@@ -162,6 +175,10 @@ public class GameScreen implements Screen, I_Notifiable, CardCollectionActor.Car
         //--- End Network Stuff ---//
     }
 
+    /**
+     * Action that retuns to the main menu<br>
+     * Will send a leave message to the server if a client is active
+     */
     public void returnToMenu(){
         if(client != null && client.isAlive()){
             client.leave();

@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 /**
  * Contains various methods to load and resize fonts
  *
+ * <br><br>
  * Last changed: 2022-06-16
  * @author Andreas Kurz
  */
@@ -36,6 +37,12 @@ public class FontLoader {
     //---   it was original removed because it lacks html compatability                 ---//
     //---   as it yields better results, it's the preferred method of loading fonts     ---//
 
+    /**
+     * Generates a font of a given size
+     * @param fontType The font to be loaded
+     * @param fontSize The target size of the font
+     * @return the newly generated font
+     */
     public static BitmapFont generateFont(Font fontType, int fontSize)
     {
         //create a FontGenerator
@@ -59,12 +66,10 @@ public class FontLoader {
      * @param font the font to be changed
      * @param height the specified size
      */
-    private static void setFontLineHeight(BitmapFont font, float height)
+    public static void setFontLineHeight(BitmapFont font, float height)
     {
         font.getData().setScale(height * font.getScaleY() / font.getLineHeight());
     }
-
-
 
 
     //--- Fonts loading without the FreeTypeFont extension ---//
